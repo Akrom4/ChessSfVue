@@ -12,7 +12,7 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ChapterRepository;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 
-
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(types: [], operations: [
     new Get(),
     new Put(security: "is_granted('ROLE_ADMIN')"),

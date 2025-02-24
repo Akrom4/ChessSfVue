@@ -419,32 +419,11 @@
         <argument>Create an admin account for the application.</argument>
       </call>
     </service>
-    <service id="App\Controller\ChapterController" class="App\Controller\ChapterController" public="true" autowire="true" autoconfigure="true">
+    <service id="App\Controller\CourseImageController" class="App\Controller\CourseImageController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
       <call method="setContainer">
-        <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\ChapterController"/>
-      </call>
-    </service>
-    <service id="App\Controller\CoursesController" class="App\Controller\CoursesController" public="true" autowire="true" autoconfigure="true">
-      <tag name="controller.service_arguments"/>
-      <tag name="container.service_subscriber"/>
-      <call method="setContainer">
-        <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\CoursesController"/>
-      </call>
-    </service>
-    <service id="App\Controller\CoursesListController" class="App\Controller\CoursesListController" public="true" autowire="true" autoconfigure="true">
-      <tag name="controller.service_arguments"/>
-      <tag name="container.service_subscriber"/>
-      <call method="setContainer">
-        <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\CoursesListController"/>
-      </call>
-    </service>
-    <service id="App\Controller\HomepageController" class="App\Controller\HomepageController" public="true" autowire="true" autoconfigure="true">
-      <tag name="controller.service_arguments"/>
-      <tag name="container.service_subscriber"/>
-      <call method="setContainer">
-        <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\HomepageController"/>
+        <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\CourseImageController"/>
       </call>
     </service>
     <service id="App\Controller\ReactController" class="App\Controller\ReactController" public="true" autowire="true" autoconfigure="true">
@@ -467,13 +446,6 @@
       <argument type="service" id="security.user_password_hasher"/>
       <call method="setContainer">
         <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\UserController"/>
-      </call>
-    </service>
-    <service id="App\Controller\UserCoursesController" class="App\Controller\UserCoursesController" public="true" autowire="true" autoconfigure="true">
-      <tag name="controller.service_arguments"/>
-      <tag name="container.service_subscriber"/>
-      <call method="setContainer">
-        <argument type="service" id=".service_locator.ZyP9f7K.App\Controller\UserCoursesController"/>
       </call>
     </service>
     <service id="App\Form\ChapterType" class="App\Form\ChapterType" autowire="true" autoconfigure="true">
@@ -533,7 +505,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.HCZkSbQ"/>
+      <argument type="service" id=".service_locator.OEsfrrX"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -1928,7 +1900,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.HCZkSbQ"/>
+      <argument type="service" id=".service_locator.OEsfrrX"/>
     </service>
     <service id="routing.resolver" class="Symfony\Component\Config\Loader\LoaderResolver">
       <call method="addLoader">
@@ -3246,9 +3218,6 @@
       <call method="addPath">
         <argument>F:\wamp64\www\chess\ChessSfVue\back\vendor\api-platform\symfony\Bundle/Resources/views</argument>
         <argument>!ApiPlatform</argument>
-      </call>
-      <call method="addPath">
-        <argument>F:\wamp64\www\chess\ChessSfVue\back/templates</argument>
       </call>
     </service>
     <service id="twig.loader.chain" class="Twig\Loader\ChainLoader"/>
@@ -6201,18 +6170,9 @@
     </service>
     <service id=".instanceof.Symfony\Component\Console\Command\Command.0.App\Command\CreateAdminCommand" class="App\Command\CreateAdminCommand" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Command\CreateAdminCommand" class="App\Command\CreateAdminCommand" autowire="true" autoconfigure="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\ChapterController" class="App\Controller\ChapterController" autowire="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\ChapterController" class="App\Controller\ChapterController" autowire="true" abstract="true"/>
-    <service id=".abstract.instanceof.App\Controller\ChapterController" class="App\Controller\ChapterController" autowire="true" autoconfigure="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\CoursesController" class="App\Controller\CoursesController" autowire="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\CoursesController" class="App\Controller\CoursesController" autowire="true" abstract="true"/>
-    <service id=".abstract.instanceof.App\Controller\CoursesController" class="App\Controller\CoursesController" autowire="true" autoconfigure="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\CoursesListController" class="App\Controller\CoursesListController" autowire="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\CoursesListController" class="App\Controller\CoursesListController" autowire="true" abstract="true"/>
-    <service id=".abstract.instanceof.App\Controller\CoursesListController" class="App\Controller\CoursesListController" autowire="true" autoconfigure="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\HomepageController" class="App\Controller\HomepageController" autowire="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\HomepageController" class="App\Controller\HomepageController" autowire="true" abstract="true"/>
-    <service id=".abstract.instanceof.App\Controller\HomepageController" class="App\Controller\HomepageController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\CourseImageController" class="App\Controller\CourseImageController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\CourseImageController" class="App\Controller\CourseImageController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\CourseImageController" class="App\Controller\CourseImageController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\ReactController" class="App\Controller\ReactController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\ReactController" class="App\Controller\ReactController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\ReactController" class="App\Controller\ReactController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -6222,9 +6182,6 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\UserController" class="App\Controller\UserController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\UserController" class="App\Controller\UserController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\UserController" class="App\Controller\UserController" autowire="true" autoconfigure="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\UserCoursesController" class="App\Controller\UserCoursesController" autowire="true" abstract="true"/>
-    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\UserCoursesController" class="App\Controller\UserCoursesController" autowire="true" abstract="true"/>
-    <service id=".abstract.instanceof.App\Controller\UserCoursesController" class="App\Controller\UserCoursesController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\ChapterRepository" class="App\Repository\ChapterRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\ChapterRepository" class="App\Repository\ChapterRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\CoursesRepository" class="App\Repository\CoursesRepository" autowire="true" abstract="true"/>
@@ -6903,143 +6860,24 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.zHyJIs5" method="withContext"/>
     </service>
-    <service id=".service_locator.UtwUb0." class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.oKTKKww" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="chapterRepository" type="service_closure" id="App\Repository\ChapterRepository"/>
+        <argument key="course" type="service_closure" id=".errored..service_locator.oKTKKww.App\Entity\Courses"/>
+        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
       </argument>
     </service>
-    <service id=".service_locator.UtwUb0..App\Controller\ChapterController::index()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\ChapterController::index()"/>
-      <argument>App\Controller\ChapterController::index()</argument>
+    <service id=".service_locator.oKTKKww.App\Controller\CourseImageController::uploadImage()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\CourseImageController::uploadImage()"/>
+      <argument>App\Controller\CourseImageController::uploadImage()</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.UtwUb0." method="withContext"/>
-    </service>
-    <service id=".service_locator.5TcRtIn" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection">
-        <argument key="chapterRepository" type="service_closure" id="App\Repository\ChapterRepository"/>
-        <argument key="coursesRepository" type="service_closure" id="App\Repository\CoursesRepository"/>
-      </argument>
-    </service>
-    <service id=".service_locator.5TcRtIn.App\Controller\ChapterController::new()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\ChapterController::new()"/>
-      <argument>App\Controller\ChapterController::new()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.5TcRtIn" method="withContext"/>
-    </service>
-    <service id=".service_locator.6dJm8qc" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection">
-        <argument key="chapter" type="service_closure" id=".errored..service_locator.6dJm8qc.App\Entity\Chapter"/>
-        <argument key="chapterRepository" type="service_closure" id="App\Repository\ChapterRepository"/>
-      </argument>
-    </service>
-    <service id=".service_locator.6dJm8qc.App\Controller\ChapterController::edit()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\ChapterController::edit()"/>
-      <argument>App\Controller\ChapterController::edit()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.6dJm8qc" method="withContext"/>
-    </service>
-    <service id=".service_locator.gT7ZQbC" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection">
-        <argument key="chapter" type="service_closure" id=".errored..service_locator.gT7ZQbC.App\Entity\Chapter"/>
-      </argument>
-    </service>
-    <service id=".service_locator.gT7ZQbC.App\Controller\ChapterController::show()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\ChapterController::show()"/>
-      <argument>App\Controller\ChapterController::show()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.gT7ZQbC" method="withContext"/>
-    </service>
-    <service id=".service_locator.6dJm8qc.App\Controller\ChapterController::delete()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\ChapterController::delete()"/>
-      <argument>App\Controller\ChapterController::delete()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.6dJm8qc" method="withContext"/>
+      <factory service=".service_locator.oKTKKww" method="withContext"/>
     </service>
     <service id=".service_locator.mSVK5D4" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="coursesRepository" type="service_closure" id="App\Repository\CoursesRepository"/>
       </argument>
-    </service>
-    <service id=".service_locator.mSVK5D4.App\Controller\CoursesController::index()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\CoursesController::index()"/>
-      <argument>App\Controller\CoursesController::index()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.mSVK5D4" method="withContext"/>
-    </service>
-    <service id=".service_locator.tvr.5KW" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection">
-        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
-        <argument key="slugger" type="service_closure" id="slugger"/>
-      </argument>
-    </service>
-    <service id=".service_locator.tvr.5KW.App\Controller\CoursesController::edit()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\CoursesController::edit()"/>
-      <argument>App\Controller\CoursesController::edit()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.tvr.5KW" method="withContext"/>
-    </service>
-    <service id=".service_locator.egipcEH" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection">
-        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
-      </argument>
-    </service>
-    <service id=".service_locator.egipcEH.App\Controller\CoursesController::new()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\CoursesController::new()"/>
-      <argument>App\Controller\CoursesController::new()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.egipcEH" method="withContext"/>
-    </service>
-    <service id=".service_locator.jkIcgNT" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection">
-        <argument key="course" type="service_closure" id=".errored..service_locator.jkIcgNT.App\Entity\Courses"/>
-      </argument>
-    </service>
-    <service id=".service_locator.jkIcgNT.App\Controller\CoursesController::show()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\CoursesController::show()"/>
-      <argument>App\Controller\CoursesController::show()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.jkIcgNT" method="withContext"/>
-    </service>
-    <service id=".service_locator.P.TiLgB" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection">
-        <argument key="course" type="service_closure" id=".errored..service_locator.P.TiLgB.App\Entity\Courses"/>
-        <argument key="coursesRepository" type="service_closure" id="App\Repository\CoursesRepository"/>
-        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
-      </argument>
-    </service>
-    <service id=".service_locator.P.TiLgB.App\Controller\CoursesController::delete()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\CoursesController::delete()"/>
-      <argument>App\Controller\CoursesController::delete()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.P.TiLgB" method="withContext"/>
-    </service>
-    <service id=".service_locator.1wMyl2Y" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection">
-        <argument key="coursesRepository" type="service_closure" id="App\Repository\CoursesRepository"/>
-        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
-      </argument>
-    </service>
-    <service id=".service_locator.1wMyl2Y.App\Controller\CoursesListController::index()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\CoursesListController::index()"/>
-      <argument>App\Controller\CoursesListController::index()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.1wMyl2Y" method="withContext"/>
-    </service>
-    <service id=".service_locator.jkIcgNT.App\Controller\CoursesListController::chapters()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\CoursesListController::chapters()"/>
-      <argument>App\Controller\CoursesListController::chapters()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.jkIcgNT" method="withContext"/>
     </service>
     <service id=".service_locator.mSVK5D4.App\Controller\ReactController::index()" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\ReactController::index()"/>
@@ -7140,43 +6978,14 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.dqxUTdk" method="withContext"/>
     </service>
-    <service id=".service_locator.egipcEH.App\Controller\UserCoursesController::index()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\UserCoursesController::index()"/>
-      <argument>App\Controller\UserCoursesController::index()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.egipcEH" method="withContext"/>
-    </service>
-    <service id=".service_locator.egipcEH.App\Controller\UserCoursesController::follow()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\UserCoursesController::follow()"/>
-      <argument>App\Controller\UserCoursesController::follow()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.egipcEH" method="withContext"/>
-    </service>
-    <service id=".service_locator.egipcEH.App\Controller\UserCoursesController::remove()" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\UserCoursesController::remove()"/>
-      <argument>App\Controller\UserCoursesController::remove()</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.egipcEH" method="withContext"/>
-    </service>
-    <service id=".service_locator.HCZkSbQ" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.OEsfrrX" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.zHyJIs5.kernel::registerContainerConfiguration()"/>
         <argument key="App\Kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.zHyJIs5.kernel::registerContainerConfiguration()"/>
         <argument key="kernel::loadRoutes" type="service_closure" id=".service_locator.zHyJIs5.kernel::loadRoutes()"/>
         <argument key="App\Kernel::loadRoutes" type="service_closure" id=".service_locator.zHyJIs5.kernel::loadRoutes()"/>
-        <argument key="App\Controller\ChapterController::index" type="service_closure" id=".service_locator.UtwUb0..App\Controller\ChapterController::index()"/>
-        <argument key="App\Controller\ChapterController::new" type="service_closure" id=".service_locator.5TcRtIn.App\Controller\ChapterController::new()"/>
-        <argument key="App\Controller\ChapterController::edit" type="service_closure" id=".service_locator.6dJm8qc.App\Controller\ChapterController::edit()"/>
-        <argument key="App\Controller\ChapterController::show" type="service_closure" id=".service_locator.gT7ZQbC.App\Controller\ChapterController::show()"/>
-        <argument key="App\Controller\ChapterController::delete" type="service_closure" id=".service_locator.6dJm8qc.App\Controller\ChapterController::delete()"/>
-        <argument key="App\Controller\CoursesController::index" type="service_closure" id=".service_locator.mSVK5D4.App\Controller\CoursesController::index()"/>
-        <argument key="App\Controller\CoursesController::edit" type="service_closure" id=".service_locator.tvr.5KW.App\Controller\CoursesController::edit()"/>
-        <argument key="App\Controller\CoursesController::new" type="service_closure" id=".service_locator.egipcEH.App\Controller\CoursesController::new()"/>
-        <argument key="App\Controller\CoursesController::show" type="service_closure" id=".service_locator.jkIcgNT.App\Controller\CoursesController::show()"/>
-        <argument key="App\Controller\CoursesController::delete" type="service_closure" id=".service_locator.P.TiLgB.App\Controller\CoursesController::delete()"/>
-        <argument key="App\Controller\CoursesListController::index" type="service_closure" id=".service_locator.1wMyl2Y.App\Controller\CoursesListController::index()"/>
-        <argument key="App\Controller\CoursesListController::chapters" type="service_closure" id=".service_locator.jkIcgNT.App\Controller\CoursesListController::chapters()"/>
+        <argument key="App\Controller\CourseImageController::uploadImage" type="service_closure" id=".service_locator.oKTKKww.App\Controller\CourseImageController::uploadImage()"/>
         <argument key="App\Controller\ReactController::index" type="service_closure" id=".service_locator.mSVK5D4.App\Controller\ReactController::index()"/>
         <argument key="App\Controller\ReactController::courseChapter" type="service_closure" id=".service_locator._uQo8Qu.App\Controller\ReactController::courseChapter()"/>
         <argument key="App\Controller\SecurityController::login" type="service_closure" id=".service_locator.kCgX_MB.App\Controller\SecurityController::login()"/>
@@ -7185,23 +6994,9 @@
         <argument key="App\Controller\UserController::show" type="service_closure" id=".service_locator.j8u0Ytg.App\Controller\UserController::show()"/>
         <argument key="App\Controller\UserController::edit" type="service_closure" id=".service_locator.4q8g.EA.App\Controller\UserController::edit()"/>
         <argument key="App\Controller\UserController::delete" type="service_closure" id=".service_locator.dqxUTdk.App\Controller\UserController::delete()"/>
-        <argument key="App\Controller\UserCoursesController::index" type="service_closure" id=".service_locator.egipcEH.App\Controller\UserCoursesController::index()"/>
-        <argument key="App\Controller\UserCoursesController::follow" type="service_closure" id=".service_locator.egipcEH.App\Controller\UserCoursesController::follow()"/>
-        <argument key="App\Controller\UserCoursesController::remove" type="service_closure" id=".service_locator.egipcEH.App\Controller\UserCoursesController::remove()"/>
         <argument key="kernel:registerContainerConfiguration" type="service_closure" id=".service_locator.zHyJIs5.kernel::registerContainerConfiguration()"/>
         <argument key="kernel:loadRoutes" type="service_closure" id=".service_locator.zHyJIs5.kernel::loadRoutes()"/>
-        <argument key="App\Controller\ChapterController:index" type="service_closure" id=".service_locator.UtwUb0..App\Controller\ChapterController::index()"/>
-        <argument key="App\Controller\ChapterController:new" type="service_closure" id=".service_locator.5TcRtIn.App\Controller\ChapterController::new()"/>
-        <argument key="App\Controller\ChapterController:edit" type="service_closure" id=".service_locator.6dJm8qc.App\Controller\ChapterController::edit()"/>
-        <argument key="App\Controller\ChapterController:show" type="service_closure" id=".service_locator.gT7ZQbC.App\Controller\ChapterController::show()"/>
-        <argument key="App\Controller\ChapterController:delete" type="service_closure" id=".service_locator.6dJm8qc.App\Controller\ChapterController::delete()"/>
-        <argument key="App\Controller\CoursesController:index" type="service_closure" id=".service_locator.mSVK5D4.App\Controller\CoursesController::index()"/>
-        <argument key="App\Controller\CoursesController:edit" type="service_closure" id=".service_locator.tvr.5KW.App\Controller\CoursesController::edit()"/>
-        <argument key="App\Controller\CoursesController:new" type="service_closure" id=".service_locator.egipcEH.App\Controller\CoursesController::new()"/>
-        <argument key="App\Controller\CoursesController:show" type="service_closure" id=".service_locator.jkIcgNT.App\Controller\CoursesController::show()"/>
-        <argument key="App\Controller\CoursesController:delete" type="service_closure" id=".service_locator.P.TiLgB.App\Controller\CoursesController::delete()"/>
-        <argument key="App\Controller\CoursesListController:index" type="service_closure" id=".service_locator.1wMyl2Y.App\Controller\CoursesListController::index()"/>
-        <argument key="App\Controller\CoursesListController:chapters" type="service_closure" id=".service_locator.jkIcgNT.App\Controller\CoursesListController::chapters()"/>
+        <argument key="App\Controller\CourseImageController:uploadImage" type="service_closure" id=".service_locator.oKTKKww.App\Controller\CourseImageController::uploadImage()"/>
         <argument key="App\Controller\ReactController:index" type="service_closure" id=".service_locator.mSVK5D4.App\Controller\ReactController::index()"/>
         <argument key="App\Controller\ReactController:courseChapter" type="service_closure" id=".service_locator._uQo8Qu.App\Controller\ReactController::courseChapter()"/>
         <argument key="App\Controller\SecurityController:login" type="service_closure" id=".service_locator.kCgX_MB.App\Controller\SecurityController::login()"/>
@@ -7210,9 +7005,6 @@
         <argument key="App\Controller\UserController:show" type="service_closure" id=".service_locator.j8u0Ytg.App\Controller\UserController::show()"/>
         <argument key="App\Controller\UserController:edit" type="service_closure" id=".service_locator.4q8g.EA.App\Controller\UserController::edit()"/>
         <argument key="App\Controller\UserController:delete" type="service_closure" id=".service_locator.dqxUTdk.App\Controller\UserController::delete()"/>
-        <argument key="App\Controller\UserCoursesController:index" type="service_closure" id=".service_locator.egipcEH.App\Controller\UserCoursesController::index()"/>
-        <argument key="App\Controller\UserCoursesController:follow" type="service_closure" id=".service_locator.egipcEH.App\Controller\UserCoursesController::follow()"/>
-        <argument key="App\Controller\UserCoursesController:remove" type="service_closure" id=".service_locator.egipcEH.App\Controller\UserCoursesController::remove()"/>
       </argument>
     </service>
     <service id=".service_locator.mJTctrn" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -7403,27 +7195,9 @@
         <argument key="web_link.http_header_serializer" type="service_closure" id="web_link.http_header_serializer" on-invalid="ignore"/>
       </argument>
     </service>
-    <service id=".service_locator.ZyP9f7K.App\Controller\ChapterController" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\ChapterController"/>
-      <argument>App\Controller\ChapterController</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.ZyP9f7K" method="withContext"/>
-    </service>
-    <service id=".service_locator.ZyP9f7K.App\Controller\CoursesController" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\CoursesController"/>
-      <argument>App\Controller\CoursesController</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.ZyP9f7K" method="withContext"/>
-    </service>
-    <service id=".service_locator.ZyP9f7K.App\Controller\CoursesListController" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\CoursesListController"/>
-      <argument>App\Controller\CoursesListController</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.ZyP9f7K" method="withContext"/>
-    </service>
-    <service id=".service_locator.ZyP9f7K.App\Controller\HomepageController" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\HomepageController"/>
-      <argument>App\Controller\HomepageController</argument>
+    <service id=".service_locator.ZyP9f7K.App\Controller\CourseImageController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\CourseImageController"/>
+      <argument>App\Controller\CourseImageController</argument>
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.ZyP9f7K" method="withContext"/>
     </service>
@@ -7442,12 +7216,6 @@
     <service id=".service_locator.ZyP9f7K.App\Controller\UserController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\UserController"/>
       <argument>App\Controller\UserController</argument>
-      <argument type="service" id="service_container"/>
-      <factory service=".service_locator.ZyP9f7K" method="withContext"/>
-    </service>
-    <service id=".service_locator.ZyP9f7K.App\Controller\UserCoursesController" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator_context" id="App\Controller\UserCoursesController"/>
-      <argument>App\Controller\UserCoursesController</argument>
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.ZyP9f7K" method="withContext"/>
     </service>
@@ -7648,14 +7416,10 @@
       <call method="allowControllers">
         <argument type="collection">
           <argument>App\Kernel</argument>
-          <argument>App\Controller\ChapterController</argument>
-          <argument>App\Controller\CoursesController</argument>
-          <argument>App\Controller\CoursesListController</argument>
-          <argument>App\Controller\HomepageController</argument>
+          <argument>App\Controller\CourseImageController</argument>
           <argument>App\Controller\ReactController</argument>
           <argument>App\Controller\SecurityController</argument>
           <argument>App\Controller\UserController</argument>
-          <argument>App\Controller\UserCoursesController</argument>
           <argument>Doctrine\Bundle\DoctrineBundle\Controller\ProfilerController</argument>
         </argument>
       </call>
@@ -7774,17 +7538,8 @@
     <service id=".errored..service_locator.zHyJIs5.Symfony\Component\Config\Loader\LoaderInterface" class="Symfony\Component\Config\Loader\LoaderInterface">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.zHyJIs5&quot;: it needs an instance of &quot;Symfony\Component\Config\Loader\LoaderInterface&quot; but this type has been excluded from autowiring."/>
     </service>
-    <service id=".errored..service_locator.6dJm8qc.App\Entity\Chapter" class="App\Entity\Chapter">
-      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.6dJm8qc&quot;: it needs an instance of &quot;App\Entity\Chapter&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
-    </service>
-    <service id=".errored..service_locator.gT7ZQbC.App\Entity\Chapter" class="App\Entity\Chapter">
-      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.gT7ZQbC&quot;: it needs an instance of &quot;App\Entity\Chapter&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
-    </service>
-    <service id=".errored..service_locator.jkIcgNT.App\Entity\Courses" class="App\Entity\Courses">
-      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.jkIcgNT&quot;: it needs an instance of &quot;App\Entity\Courses&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
-    </service>
-    <service id=".errored..service_locator.P.TiLgB.App\Entity\Courses" class="App\Entity\Courses">
-      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.P.TiLgB&quot;: it needs an instance of &quot;App\Entity\Courses&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    <service id=".errored..service_locator.oKTKKww.App\Entity\Courses" class="App\Entity\Courses">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.oKTKKww&quot;: it needs an instance of &quot;App\Entity\Courses&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
     </service>
     <service id=".errored..service_locator.j8u0Ytg.App\Entity\User" class="App\Entity\User">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.j8u0Ytg&quot;: it needs an instance of &quot;App\Entity\User&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
@@ -8760,7 +8515,7 @@
     <service id="lexik_jwt_authentication.key_loader" alias="lexik_jwt_authentication.key_loader.raw" public="true"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.pRu6x_4" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.HCZkSbQ"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.OEsfrrX"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.BxSdgVt"/>
     <service id="api_platform.name_converter" alias="api_platform.hydra.name_converter.hydra_prefix"/>
@@ -8846,16 +8601,8 @@
     <service id="api_platform.metadata.property.metadata_factory.cached.inner" alias="api_platform.json_schema.metadata.property.metadata_factory.schema"/>
     <service id="api_platform.metadata.resource.metadata_collection_factory.cached.inner" alias="api_platform.doctrine.orm.metadata.resource.metadata_collection_factory"/>
     <service id=".service_locator.n_ENPtW" alias=".service_locator.zHyJIs5"/>
-    <service id=".service_locator.IPJT5Fu" alias=".service_locator.UtwUb0."/>
-    <service id=".service_locator.gusUftM" alias=".service_locator.5TcRtIn"/>
-    <service id=".service_locator.sNMlpww" alias=".service_locator.6dJm8qc"/>
-    <service id=".service_locator.lCPe1hs" alias=".service_locator.gT7ZQbC"/>
+    <service id=".service_locator.jDhAuJL" alias=".service_locator.oKTKKww"/>
     <service id=".service_locator.73Q9XEJ" alias=".service_locator.mSVK5D4"/>
-    <service id=".service_locator.oMudAQZ" alias=".service_locator.tvr.5KW"/>
-    <service id=".service_locator.5Vd5JYV" alias=".service_locator.egipcEH"/>
-    <service id=".service_locator.oBIolhc" alias=".service_locator.jkIcgNT"/>
-    <service id=".service_locator.z9Ave8f" alias=".service_locator.P.TiLgB"/>
-    <service id=".service_locator.a7S00ra" alias=".service_locator.1wMyl2Y"/>
     <service id=".service_locator.cw1MJWy" alias=".service_locator._uQo8Qu"/>
     <service id=".service_locator.YF_6SEt" alias=".service_locator.kCgX_MB"/>
     <service id=".service_locator.nPLMsXH" alias=".service_locator.PTxJTrJ"/>

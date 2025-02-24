@@ -18,7 +18,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 
-
+#[ORM\HasLifecycleCallbacks]
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: CoursesRepository::class)]
 #[ApiResource( operations: [
@@ -137,6 +137,7 @@ class Courses
         return $this->createdat;
     }
 
+    #[ORM\PrePersist]
     public function setCreatedat(\DateTimeImmutable $createdat): self
     {
         $createdat ? $this->createdat = $createdat : $this->createdat = new \DateTimeImmutable();
@@ -149,6 +150,8 @@ class Courses
         return $this->updatedat;
     }
 
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
     public function setUpdatedat(?\DateTimeInterface $updatedat): self
     {
         $this->updatedat = $updatedat;

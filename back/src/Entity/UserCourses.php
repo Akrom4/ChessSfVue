@@ -5,22 +5,35 @@ namespace App\Entity;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserCoursesRepository;
 
 
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: UserCoursesRepository::class)]
-#[ApiResource( operations: [
-    new Get(
-        security: "is_granted('ROLE_ADMIN')"),
-    new Put(
-        security: "is_granted('ROLE_ADMIN')"),
-    new Post(
-        security: "is_granted('ROLE_ADMIN')",
-    ),
-])]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            security: "is_granted('ROLE_USER')"
+        ),
+        new Get(
+            security: "is_granted('ROLE_USER') and object.userid == user"
+        ),
+        new Post(
+            security: "is_granted('ROLE_USER')"
+        ),
+        new Put(
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+        new Delete(
+            security: "is_granted('ROLE_USER') and object.userid == user"
+        )
+    ]
+)]
 class UserCourses
 {
     #[ORM\Id]
@@ -106,6 +119,7 @@ class UserCourses
         return $this->createdAt;
     }
 
+    #[ORM\PrePersist]
     public function setCreatedAt(?\DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
@@ -118,6 +132,8 @@ class UserCourses
         return $this->updatedAt;
     }
 
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
