@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@theme {
+    --color-nav-start: oklch(35% 0.0986 254.57);
+    --color-nav-end: oklch(43.83% 0.0986 254.57);
+    --color-nav-hover: oklch(48.83% 0.0986 254.57);
+    --color-nav-mobile: oklch(43% 0.0986 254.57);
+    --color-nav-mobile-button: oklch(48% 0.0986 254.57);
+    --color-custom-yellow: oklch(94.13% 0.1718 104.6)
+}
