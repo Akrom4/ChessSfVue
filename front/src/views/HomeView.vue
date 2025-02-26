@@ -1,53 +1,38 @@
 <script setup lang="ts">
-import Checkbox from '../components/Checkbox.vue';
-import Button from '../components/Button.vue';
-import { ref, computed, onMounted } from 'vue';
-import Layout from '../components/Layout.vue';
-const todos = ref<{todo: string, isDone: boolean, date: number}[]>([]);
-const todo = ref<string>('');
-onMounted(() => {
-  fetch('https://jsonplaceholder.typicode.com/todos')
-    .then(response => response.json())
-    .then(data => {
-      todos.value = data.map((item: any) => ({
-        todo: item.title,
-        isDone: item.completed,
-        date: item.id
-      }));
-    });
-});
-const addTask = () => {
-  todos.value.push({todo: todo.value, isDone: false, date: Date.now()});
-  todo.value = '';
-};
 
-const sortedTodos = computed(() => {
-  return [...todos.value].sort((a) => a.isDone ? 1 : -1);
+import { ref, onMounted } from 'vue';
+import Quiz from '../components/Quiz.vue';
+
+const quiz = ref(null);
+const state = ref('loading');
+
+onMounted(() => {
+    fetch('quiz.json')
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Failed to fetch quiz');
+        })
+        .then(data => {
+            quiz.value = data;
+            state.value = 'idle';
+        })
+        .catch(error => {
+            console.error('Error fetching quiz:', error);
+            state.value = 'error';
+        });
 });
 
 </script>
 
 <template>
-  <Layout>
-    <template #header>Entête</template>
-    <template #aside>Sidebar</template>
-    <template #main>Main</template>
-    <template #footer>Footer</template>
-  </Layout>
-    <div v-if="todos.length === 0">Vous n'avez pas de tâches</div>
-    <div v-else>
-      <div v-for="todo in sortedTodos" :key="todo.date">
-      <Checkbox :label="todo.todo" v-model="todo.isDone" />
-      <span :class="{'line-through': todo.isDone}">{{ todo.todo }}</span>
+    <div class="container mt-2">
+        <div v-if="state === 'error'">
+            <h1>Error fetching quiz</h1>
+        </div>
+        <div :aria-busy="state === 'loading'">
+            <Quiz :quiz="quiz" v-if="quiz" />
+        </div>
     </div>
-  </div>
-  <fieldset role="group">
-    <input type="text" v-model="todo" />
-    <Button :disabled="todo.length === 0" @click="addTask">Ajouter une tâche</Button>
-  </fieldset>
-  
 </template>
-
-<style scoped>
-
-</style>
