@@ -164,102 +164,87 @@ export class Board {
     const { inCheck, checkingPiece } = this.isKingInCheck(playedPiece, destination);
 
     if ((checkingPiece && !checkingPiece.samePosition(destination)) || inCheck) {
-      return false;
+        return false;
     }
 
     const pawnDirection = playedPiece.team === TeamType.W ? 1 : -1;
+    const validMove = this.isValidMove(playedPiece.position, destination);
 
-    const validMove = this.isValidMove(
-      playedPiece.position,
-      destination,
-    );
+    const enPassant = this.isEnPassant(playedPiece.position, destination, playedPiece.type, playedPiece.team);
 
-    const enPassant = this.isEnPassant(
-      playedPiece.position,
-      destination,
-      playedPiece.type,
-      playedPiece.team
-    );
+    const castle = this.isCastle(playedPiece, destination);
 
-    const castle = this.isCastle(
-      playedPiece,
-      destination
-    );
     if (castle.castle && castle.rook instanceof Rook) {
-      this.lastPosition = this.getFen();
-      // Rook update
-      castle.rook.hasMoved = true;
-      castle.rook.position = new Position(destination.x + (destination.x > playedPiece.position.x ? -1 : 1), playedPiece.position.y);
-      this.validMoves();
-      // King update
-      if (playedPiece instanceof King) {
-        playedPiece.hasMoved = true;
-      }
-      playedPiece.position = destination;
-    }
-    else if (enPassant) {
-      this.lastPosition = this.getFen();
-      this.pieces = this.pieces.reduce((results, piece) => {
-        if (piece.samePosition(playedPiece.position)) {
-          if (piece instanceof Pawn) {
-            piece.enPassant = false;
-          }
-          piece.position = destination;
-
-          results.push(piece);
-        } else if (
-          !piece.samePosition(
-            new Position(destination.x, destination.y - pawnDirection)
-          )
-        ) {
-          if (piece instanceof Pawn) piece.enPassant = false;
-          results.push(piece);
+        this.lastPosition = this.getFen();
+        // Rook update
+        castle.rook.hasMoved = true;
+        castle.rook.position = new Position(destination.x + (destination.x > playedPiece.position.x ? -1 : 1), playedPiece.position.y);
+        this.validMoves();
+        // King update
+        if (playedPiece instanceof King) {
+          playedPiece.hasMoved = true;
         }
-        return results;
-      }, [] as Piece[]);
-      this.validMoves();
-    }
+        playedPiece.position = destination;
+    } else if (enPassant) {
+        this.lastPosition = this.getFen();
+        this.pieces = this.pieces.reduce((results, piece) => {
+          if (piece.samePosition(playedPiece.position)) {
+            if (piece instanceof Pawn) {
+              piece.enPassant = false;
+            }
+            piece.position = destination;
 
-    // If this is a valid move : updates the board state
-    else if (validMove) {
-      this.lastPosition = this.getFen();
-      this.pieces = this.pieces.reduce((results, piece) => {
-        if (piece.samePosition(destination)) {
-          return results; // The piece taken isn't added to the array
-        }
-        else if (piece.samePosition(playedPiece.position)) {
-          if (piece instanceof Pawn) {
-            piece.enPassant =
-              Math.abs(playedPiece.position.y - destination.y) === 2 &&
-              piece instanceof Pawn; // This pawn can be taken en passant
+            results.push(piece);
+          } else if (
+            !piece.samePosition(
+              new Position(destination.x, destination.y - pawnDirection)
+            )
+          ) {
+            if (piece instanceof Pawn) piece.enPassant = false;
+            results.push(piece);
           }
-          piece.position = destination;
-          if (piece instanceof King) {
-            piece.hasMoved = true; // King castle rule
-          } else if (piece instanceof Rook) {
-            piece.hasMoved = true; // Rook castle rule
+          return results;
+        }, [] as Piece[]);
+        this.validMoves();
+    } else if (validMove) {
+        this.lastPosition = this.getFen();
+        this.pieces = this.pieces.reduce((results, piece) => {
+          if (piece.samePosition(destination)) {
+            return results; // The piece taken isn't added to the array
           }
-          if (promotionChoice) {
-            const newPiece = this.createPromotedPiece(promotionChoice, destination, playedPiece.team);
-            results.push(newPiece); // Add the new promoted piece to the array
+          else if (piece.samePosition(playedPiece.position)) {
+            if (piece instanceof Pawn) {
+              piece.enPassant =
+                Math.abs(playedPiece.position.y - destination.y) === 2 &&
+                piece instanceof Pawn; // This pawn can be taken en passant
+            }
+            piece.position = destination;
+            if (piece instanceof King) {
+              piece.hasMoved = true; // King castle rule
+            } else if (piece instanceof Rook) {
+              piece.hasMoved = true; // Rook castle rule
+            }
+            if (promotionChoice) {
+              const newPiece = this.createPromotedPiece(promotionChoice, destination, playedPiece.team);
+              results.push(newPiece); // Add the new promoted piece to the array
+            }
+            results.push(piece); // Push the new piece position in the updatedPieces array
+          } else {
+            if (piece instanceof Pawn) {
+              piece.enPassant = false; // This pawn cannot be taken en passant
+            }
+            results.push(piece); // Push the remaining pieces in the updatedPieces array
           }
-          results.push(piece); // Push the new piece position in the updatedPieces array
-        } else {
-          if (piece instanceof Pawn) {
-            piece.enPassant = false; // This pawn cannot be taken en passant
-          }
-          results.push(piece); // Push the remaining pieces in the updatedPieces array
-        }
-        return results;
-      }, [] as Piece[]);
+          return results;
+        }, [] as Piece[]);
 
-      this.validMoves();
+        this.validMoves();
     } else {
-      return false;
+        return false;
     }
+
     this.setTurn(this.getTurn() === TeamType.W ? TeamType.B : TeamType.W);
-    if (playedPiece.team === TeamType.W)
-      this.newMoveCount();
+    if (playedPiece.team === TeamType.W) this.newMoveCount();
     this.validMoves();
     return true;
   }

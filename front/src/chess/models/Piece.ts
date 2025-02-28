@@ -20,7 +20,7 @@ export class Piece {
     team: string;
     possibleMoves: Position[];
     constructor(position: Position, type: string, team: string, possibleMoves: Position[] = []) {
-        this.image = this.getImagePath(team, type) || 'defaultImagePath';
+        this.image = this.getImagePath(team, type) || '../assets/images/chess_bk.svg';
         this.position = position;
         this.type = type;
         this.team = team;

@@ -16,14 +16,16 @@
         </div>
       </div>
     </div>
-    <Chessboard :playMove="playMove" :pieces="board.pieces" :setOrientation="setOrientation"
+    <!-- Pass the computed boardPieces -->
+    <Chessboard :playMove="playMove" :pieces="boardPieces" :setOrientation="setOrientation"
       :getOrientation="getOrientation" :teamTurn="teamTurn" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted, watch } from 'vue';
-import { column, initialBoard, PieceType, TeamType } from '../../Constants';
+import { defineComponent, ref, computed, onMounted, watch } from 'vue';
+import { initialBoard, PieceType, TeamType } from '../../Constants';
+import { Board } from '../../models/Board';
 import { Piece, Position } from '../../models';
 import Chessboard from '../../components/Chessboard/Chessboard.vue';
 
@@ -41,11 +43,15 @@ export default defineComponent({
   props: {
     fen: String
   },
-  components: {
-    Chessboard
-  },
+  components: { Chessboard },
   setup(props) {
-    const board = reactive(initialBoard);
+    // Declare board as a ref of type Board.
+    const board = ref<Board>(initialBoard);
+    // Computed property for pieces.
+    const boardPieces = computed(() => {
+      return board.value.pieces;
+    });
+
     const promotion = ref<Piece | null>(null);
     const modalRef = ref<HTMLElement | null>(null);
     const modalBodyRef = ref<HTMLElement | null>(null);
@@ -53,7 +59,7 @@ export default defineComponent({
     const teamTurn = ref<'w' | 'b'>(TeamType.W);
 
     onMounted(() => {
-      updatePossibleMoves();
+      board.value.validMoves();
     });
 
     watch(() => props.fen, (newFen) => {
@@ -65,41 +71,39 @@ export default defineComponent({
     function setOrientation(color: string) {
       orientation.value = color;
     }
-
     function getOrientation() {
       return orientation.value;
     }
-
     function updatePossibleMoves() {
-      board.validMoves();
+      board.value.validMoves();
     }
 
     function playMove(playedPiece: Piece, destination: Position, chessboard: HTMLElement) {
-      let validMove = false;
-      validMove = board.playMove(destination, playedPiece);
-      board.clone();
+      const validMove = board.value.playMove(destination, playedPiece);
+      // Replace board with its clone so that board.value changes.
+      board.value = board.value.clone();
+
       const promotionRow = playedPiece.team === TeamType.W ? 7 : 0;
       if (playedPiece.position.y === promotionRow && playedPiece.isPawn) {
         modalPosition(chessboard, playedPiece, playedPiece.position.x);
         promotion.value = playedPiece;
         modalRef.value?.classList.remove('hidden');
       }
-      teamTurn.value = validMove ? (teamTurn.value === TeamType.W ? TeamType.B : TeamType.W) : teamTurn.value;
+      teamTurn.value = validMove
+        ? (teamTurn.value === TeamType.W ? TeamType.B : TeamType.W)
+        : teamTurn.value;
       return validMove;
     }
 
     function promote(type: keyof typeof PieceType) {
-      board.pieces = board.pieces.reduce((results, piece) => {
+      board.value.pieces = board.value.pieces.map((piece: Piece) => {
         if (piece.samePosition(promotion.value!.position)) {
-          const newPiece = new Piece(promotion.value!.position, type, piece.team);
-          results.push(newPiece);
-        } else {
-          results.push(piece);
+          return board.value.createPromotedPiece(type, promotion.value!.position, piece.team);
         }
-        return results;
-      }, [] as Piece[]);
+        return piece;
+      });
       updatePossibleMoves();
-      board.clone();
+      board.value = board.value.clone();
       modalRef.value?.classList.add('hidden');
     }
 
@@ -109,34 +113,37 @@ export default defineComponent({
     }
 
     function modalPosition(chessboard: HTMLElement, piece: Piece, x: number) {
-      const squareSize = chessboard.clientWidth / column.length;
+      const squareSize = chessboard.clientWidth / 8; // assuming 8 columns
       const squareTop = chessboard.offsetTop;
-      let modalTop;
-      let flexDirection;
-      let squareLeft;
+      let modalTop: number;
+      let flexDirection: string;
+      let squareLeft: number;
       if (orientation.value === 'white') {
         squareLeft = chessboard.offsetLeft + x * squareSize;
         modalTop = piece.team === TeamType.W ? squareTop : squareTop + 4 * squareSize;
         flexDirection = piece.team === TeamType.W ? 'column' : 'column-reverse';
       } else {
-        squareLeft = chessboard.offsetLeft + (column.length - 1 - x) * squareSize;
+        squareLeft = chessboard.offsetLeft + (8 - 1 - x) * squareSize;
         modalTop = piece.team === TeamType.W ? squareTop + 4 * squareSize : squareTop;
         flexDirection = piece.team === TeamType.W ? 'column-reverse' : 'column';
       }
-      modalBodyRef.value!.style.left = `${squareLeft}px`;
-      modalBodyRef.value!.style.top = `${modalTop}px`;
-      modalBodyRef.value!.style.flexDirection = flexDirection;
+      if (modalBodyRef.value) {
+        modalBodyRef.value.style.left = `${squareLeft}px`;
+        modalBodyRef.value.style.top = `${modalTop}px`;
+        modalBodyRef.value.style.flexDirection = flexDirection;
+      }
     }
 
     function readFen(fen: string) {
-      const newBoardState = board.fenReader(fen);
+      const newBoardState = board.value.fenReader(fen);
       newBoardState.validMoves();
       teamTurn.value = newBoardState.getTurn() as 'w' | 'b';
-      board.clone();
+      board.value = newBoardState.clone();
     }
 
     return {
       board,
+      boardPieces,
       promotion,
       modalRef,
       modalBodyRef,
@@ -164,6 +171,7 @@ export default defineComponent({
   }
 });
 </script>
+
 
 <style scoped>
 #promotion {

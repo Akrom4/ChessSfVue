@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import Square from '../Square/Square.vue';
 import { row, column } from '../../Constants';
 import { Position } from "../../models";
@@ -141,7 +141,9 @@ export default defineComponent({
         const currentPiece = props.pieces.find(p => p.samePosition(grabPosition.value));
 
         if (currentPiece) {
-          if (!props.playMove(currentPiece, new Position(x, y), chessboard)) {
+          const moveSuccessful = props.playMove(currentPiece, new Position(x, y), chessboard);
+
+          if (!moveSuccessful) {
             activePiece.value.style.removeProperty('top');
             activePiece.value.style.removeProperty('left');
           }
@@ -206,7 +208,8 @@ export default defineComponent({
       return board;
     };
 
-    const board = reactive(renderBoard());
+    const board = computed(() => renderBoard());
+
 
     return {
       chessboardRef,
