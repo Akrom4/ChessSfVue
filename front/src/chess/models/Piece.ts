@@ -1,4 +1,4 @@
-import { PieceType , TeamType } from "../Constants";
+import { PieceType, TeamType } from "../Constants";
 import whitePawn from '../assets/images/chess_wp.svg';
 import whiteRook from '../assets/images/chess_wr.svg';
 import whiteKnight from '../assets/images/chess_wn.svg';
@@ -11,48 +11,48 @@ import blackKnight from '../assets/images/chess_bn.svg';
 import blackBishop from '../assets/images/chess_bb.svg';
 import blackQueen from '../assets/images/chess_bq.svg';
 import blackKing from '../assets/images/chess_bk.svg';
-
+import { Position } from "./Position";
 
 export class Piece {
-    image;
-    position;
-    type;
-    team;
-    possibleMoves;
-    constructor(position, type, team, possibleMoves = []) {
-        this.image = this.getImagePath(team, type);
+    image: string;
+    position: Position;
+    type: string;
+    team: string;
+    possibleMoves: Position[];
+    constructor(position: Position, type: string, team: string, possibleMoves: Position[] = []) {
+        this.image = this.getImagePath(team, type) || 'defaultImagePath';
         this.position = position;
         this.type = type;
         this.team = team;
         this.possibleMoves = possibleMoves;
     }
-    clone() {
+    clone(): Piece {
         return new Piece(this.position.clone(), this.type, this.team, this.possibleMoves.map(position => position.clone()));
     }
-    samePosition(otherPosition) {
+    samePosition(otherPosition: Position): boolean {
         return this.position.samePosition(otherPosition);
     }
 
-    get isPawn() {
+    get isPawn(): boolean {
         return this.type === PieceType.PAWN
     }
-    get isQueen() {
+    get isQueen(): boolean {
         return this.type === PieceType.QUEEN
     }
-    get isKing() {
+    get isKing(): boolean {
         return this.type === PieceType.KING
     }
-    get isRook() {
+    get isRook(): boolean {
         return this.type === PieceType.ROOK
     }
-    get isKnight() {
+    get isKnight(): boolean {
         return this.type === PieceType.KNIGHT
     }
-    get isBishop() {
+    get isBishop(): boolean {
         return this.type === PieceType.BISHOP
     }
 
-    getImagePath(team, type) {
+    public getImagePath(team: string, type: string): string | undefined {
         if (team === TeamType.W) {
             switch (type) {
                 case PieceType.PAWN:

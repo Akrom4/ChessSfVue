@@ -1,19 +1,44 @@
 import { column, PieceType, TeamType } from "../Constants";
 import { oppositeColor, pieceTypeFromChar, removeAnnotations } from "../Helpers";
-import { Board, Course, Position } from "../models";
+import { Board, Course, Position } from ".";
+import { Piece } from "./Piece";
+
+interface Move {
+    move: string;
+    moveNumber: number;
+    teamColor: string;
+    position: string;
+}
+
+interface Comment {
+    text: string;
+    moveNumber: number;
+    teamColor: string;
+}
+
+interface Variation {
+    moves: Move[];
+    comments: Comment[];
+    variations: Variation[];
+    parentMove: Move | null;
+}
 
 export class Pgn {
-    pgnFile;
-    moves;
-    comments;
-    chapters;
-    variations;
+    pgnFile: string | null;
+    moves: Move[];
+    comments: Comment[];
+    chapters: string[];
+    variations: Variation[];
 
-    constructor(pgnFile = null) {
+    constructor(pgnFile: string | null = null) {
         this.pgnFile = pgnFile;
+        this.moves = [];
+        this.comments = [];
+        this.chapters = [];
+        this.variations = [];
     }
 
-    parseData() {
+    parseData(): Course | undefined {
         if (!this.pgnFile) {
             return;
         }
@@ -44,18 +69,17 @@ export class Pgn {
             course.addChapter({
                 Title: title,
                 Number: index + 1,
-                Moves: parsedChapter.moves,
-                Comments: parsedChapter.comments,
-                Variations: parsedChapter.variations,
+                Moves: parsedChapter.moves.map(m => m.move),
+                Comments: parsedChapter.comments.map(c => c.text),
                 FEN: startFEN
             });
         }
         return course;
     }
 
-    parseVariation(board, moveText, moveNumber, teamColor, parentMove = null) {
+    parseVariation(board: Board, moveText: string, moveNumber: number, teamColor: string, parentMove: Move | null = null): Variation {
         const moveTokens = moveText.split(/(\d+\.{1,3}\s?|\s*\{.*?\}\s*|\s*\(\s*|\s*\)\s*|\s+)/);
-        const variation = {
+        const variation: Variation = {
             moves: [],
             comments: [],
             variations: [],
@@ -63,7 +87,7 @@ export class Pgn {
         };
 
         let nestedMoveText = '';
-        const parenthesesStack = [];
+        const parenthesesStack: string[] = [];
 
         for (let i = 0; i < moveTokens.length; i++) {
             let token = moveTokens[i].trim();
@@ -113,7 +137,6 @@ export class Pgn {
                 });
             } else {
                 this.pushPGNMove(board, token, teamColor);
-                console.log(token);
                 variation.moves.push({
                     move: token,
                     moveNumber: moveNumber,
@@ -126,7 +149,7 @@ export class Pgn {
         return variation;
     }
 
-    metaData(lines, string) {
+    metaData(lines: string[], string: string): string {
         const startMetaDataLine = lines.find(line => line.startsWith(string));
         let metaData = '';
 
@@ -136,11 +159,11 @@ export class Pgn {
         return metaData;
     }
 
-    pushPGNMove(board, newmove, teamColor) {
+    pushPGNMove(board: Board, newmove: string, teamColor: string): void {
         const move = removeAnnotations(newmove);
-        let movingPieceType;
-        let targetSquare;
-        let promotionType = null;
+        let movingPieceType: string;
+        let targetSquare: Position;
+        let promotionType: string | null = null;
     
         if (move === "OO" || move === "OOO") {
             movingPieceType = PieceType.KING;
@@ -150,7 +173,7 @@ export class Pgn {
             targetSquare = new Position(columnKing, rowKing);
         } else {
             movingPieceType = (move.charAt(0) === move.charAt(0).toUpperCase())
-                ? pieceTypeFromChar(move.charAt(0))
+                ? pieceTypeFromChar(move.charAt(0)) || PieceType.PAWN
                 : PieceType.PAWN;
     
             const moveWithoutPieceType = movingPieceType === PieceType.PAWN ? move : move.substring(1);
@@ -160,7 +183,7 @@ export class Pgn {
     
             if (promotionMatch) {
                 moveWithoutPromotion = move.replace(promotionMatch[0], '');
-                promotionType = pieceTypeFromChar(promotionMatch[0].charAt(1));
+                promotionType = promotionMatch ? pieceTypeFromChar(promotionMatch[0].charAt(1)) || null : null;
             }
             const columnChar = moveWithoutPromotion.charAt(moveWithoutPromotion.length - 2);
             const rowChar = moveWithoutPromotion.charAt(moveWithoutPromotion.length - 1);
@@ -170,14 +193,17 @@ export class Pgn {
     
             targetSquare = new Position(columnPiece, rowPiece);
         }
-        console.log(move);
         const movingPiece = this.findMovingPiece(board, move, movingPieceType, targetSquare, teamColor);
-        console.log(movingPiece);
+
+        if (!movingPiece) {
+            throw new Error(`No valid piece found for move: ${move}`);
+        }
+
         board.playMove(targetSquare, movingPiece, promotionType);
     }
     
 
-    findMovingPiece(board, move, movingPieceType, targetSquare, teamColor) {
+    findMovingPiece(board: Board, move: string, movingPieceType: string, targetSquare: Position, teamColor: string): Piece | undefined {
         // For castling moves, find the king of the current turn
         if (movingPieceType === PieceType.KING && (move === "OO" || move === "OOO")) {
             return board.pieces.find((piece) => piece.type === movingPieceType && piece.team === teamColor);
@@ -187,13 +213,13 @@ export class Pgn {
         const possiblePieces = board.pieces.filter((piece) => piece.type === movingPieceType && piece.team === teamColor);
 
         // Check for disambiguation information (file or rank) in the move string
-        let disambiguationFile = null;
-        let disambiguationRank = null;
+        let disambiguationFile: number | null = null;
+        let disambiguationRank: number | null = null;
 
         const disambiguationMatch = move.match(/([a-h]?)([1-8]?)[x-]?[a-h][1-8]/);
         if (disambiguationMatch) {
             disambiguationFile = disambiguationMatch[1] ? column.indexOf(disambiguationMatch[1]) : null;
-            disambiguationRank = disambiguationMatch[2] ? disambiguationMatch[2] - 1 : null;
+            disambiguationRank = disambiguationMatch[2] ? parseInt(disambiguationMatch[2]) - 1 : null;
         }
 
         for (const piece of possiblePieces) {

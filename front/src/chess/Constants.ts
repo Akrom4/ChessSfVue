@@ -1,8 +1,8 @@
 import { Board, Pawn, King, Piece, Position, Rook } from "./models";
 
+export const row: string[] = ['1', '2', '3', '4', '5', '6', '7', '8'];
+export const column: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-export const row = ['1', '2', '3', '4', '5', '6', '7', '8'];
-export const column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 export const PieceType = {
     PAWN: 'p',
     BISHOP: 'b',
@@ -10,13 +10,16 @@ export const PieceType = {
     ROOK: 'r',
     QUEEN: 'q',
     KING: 'k'
-};
+} as const;
 
-export const TeamType = { W: 'w', B: 'b' };
+export const TeamType = { W: 'w', B: 'b' } as const;
 
-export const testBoard = new Board([new Pawn(new Position(0, 6), TeamType.W), new Piece(new Position(5, 6), PieceType.KNIGHT, TeamType.W)],TeamType.W);
+export const testBoard = new Board([
+    new Pawn(new Position(0, 6), TeamType.W),
+    new Piece(new Position(5, 6), PieceType.KNIGHT, TeamType.W)
+], TeamType.W);
 
-export const initialBoardState = [];
+export const initialBoardState: Piece[] = [];
 
 for (let i = 0; i < 8; i++) {
     initialBoardState.push(new Pawn(new Position(i, 6), TeamType.B));
@@ -38,9 +41,9 @@ for (let i = 0; i < 2; i++) {
     initialBoardState.push(new King(new Position(4, rowT), team));
 }
 
-export const initialBoard = new Board(initialBoardState,TeamType.W);
+export const initialBoard = new Board(initialBoardState, TeamType.W);
 
-export const fen = "rnbqkbnr/ppp1pppp/8/8/3pP3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
+export const fen: string = "rnbqkbnr/ppp1pppp/8/8/3pP3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
 
 export const pgnTest3 = `[Event "?"]
 [Site "?"]

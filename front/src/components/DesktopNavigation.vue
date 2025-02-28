@@ -2,7 +2,6 @@
 <template>
     <div
         class="flex flex-col h-screen w-48 overflow-y-auto border-r border-gray-300 bg-gradient-to-b from-[var(--color-nav-start)] to-[var(--color-nav-end)] px-6 text-white">
-        <!-- Centered Logo -->
         <div class="flex pt-4 h-16 shrink-0 justify-center items-center">
             <img class="h-16 w-auto" src="/images/logo/logo.png" alt="Echecs Plus" />
         </div>
@@ -13,7 +12,7 @@
                         <li v-for="(item, index) in navigation" :key="item.name">
                             <template v-if="!item.children">
                                 <a :href="item.href"
-                                    class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold hover:bg-[var(--color-nav-hover)] text-white">
+                                    class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold hover:bg-nav-hover text-white">
                                     <component :is="item.icon" class="h-6 w-6 shrink-0 text-custom-yellow"
                                         aria-hidden="true" />
                                     {{ item.name }}
@@ -44,7 +43,7 @@
                         <!-- Admin Panel Link for role_admin -->
                         <li v-if="userRole === 'role_admin'">
                             <a href="/admin"
-                                class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold hover:bg-[var(--color-nav-hover)] text-white">
+                                class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold hover:bg-nav-hover text-white">
                                 <Cog6ToothIcon class="h-6 w-6 shrink-0 text-custom-yellow" aria-hidden="true" />
                                 Administration
                             </a>
@@ -54,7 +53,7 @@
                 <!-- User Profile Section -->
                 <li class="-mx-6 mt-auto">
                     <a href="#"
-                        class="flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-white hover:bg-[var(--color-nav-hover)]">
+                        class="flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-white hover:bg-nav-hover">
                         <UserIcon class="h-8 w-8 text-custom-yellow" aria-hidden="true" />
                         <span class="sr-only">Your profile</span>
                         <span aria-hidden="true">{{ userName }}</span>

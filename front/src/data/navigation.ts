@@ -17,7 +17,7 @@ export interface NavigationItem {
 }
 
 export const navigation: NavigationItem[] = [
-  { name: 'Accueil', href: '#', icon: HomeIcon, current: false },
+  { name: 'Accueil', href: '/', icon: HomeIcon, current: false },
   {
     name: 'Leçons',
     icon: BookOpenIcon,

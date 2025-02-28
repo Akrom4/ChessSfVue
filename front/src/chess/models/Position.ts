@@ -1,19 +1,19 @@
 import {row,column} from "../Constants";
 export class Position{
-    x;
-    y;
-    constructor(x,y){
+    x: number;
+    y: number;
+    constructor(x: number,y: number){
         this.x=x;
         this.y=y;
     }
 
-    samePosition(destination){
+    samePosition(destination: Position): boolean{
         return this.x === destination.x && this.y === destination.y;
     }
-    clone(){
+    clone(): Position{
         return new Position(this.x,this.y);
     }
-    toString(){        
+    toString(): string{        
         return column[this.x] + row[this.y];
     }
 }

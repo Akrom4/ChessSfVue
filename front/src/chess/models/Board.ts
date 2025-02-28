@@ -4,40 +4,42 @@ import { Piece, Pawn, King, Rook } from ".";
 import { pieceTypeFromChar } from "../Helpers";
 
 export class Board {
-  pieces;
-  turn;
-  moveCount;
-  lastPosition;
+  pieces: Piece[];
+  turn: string;
+  moveCount: number;
+  lastPosition: string;
+  orientation: string;
 
-  constructor(pieces = initialBoardState, turn = TeamType.W, moveCount = 0, lastPosition = '') {
+  constructor(pieces: Piece[] = initialBoardState, turn: string = TeamType.W, moveCount: number = 0, lastPosition: string = '') {
     this.pieces = pieces;
     this.turn = turn;
     this.moveCount = moveCount;
     this.lastPosition = lastPosition;
+    this.orientation = 'white';
     this.validMoves();
   }
 
-  setMoveCount(n = 1) {
+  setMoveCount(n: number = 1): void {
     this.moveCount = n;
   }
 
-  newMoveCount() {
+  newMoveCount(): void {
     this.moveCount++;
   }
 
-  getMoveCount() {
+  getMoveCount(): number {
     return this.moveCount;
   }
 
-  setTurn(teamTurn) {
+  setTurn(teamTurn: string): void {
     this.turn = teamTurn;
   }
 
-  getTurn() {
+  getTurn(): string {
     return this.turn;
   }
 
-  getEnPassantSquare(epSquare, teamTurn) {
+  getEnPassantSquare(epSquare: string, teamTurn: string): Position {
     const squareValues = Object.values(column);
     const columnIndex = squareValues.indexOf(epSquare[0]);
 
@@ -46,22 +48,22 @@ export class Board {
       : new Position(columnIndex, parseInt(epSquare[1]));
   }
 
-  clone() {
+  clone(): Board {
     return new Board(this.pieces.map((p) => p.clone()), this.turn, this.moveCount, this.lastPosition);
   }
 
-  reverse() {
+  reverse(): void {
     this.orientation = 'black';
     this.validMoves();
   }
 
-  validMoves() {
+  validMoves(): void {
     for (const piece of this.pieces) {
       piece.possibleMoves = this.getValidMoves(piece);
     }
   }
 
-  pushMove(start, end) {
+  pushMove(start: Position, end: Position): void {
     const piece = this.pieces.find(p => p.samePosition(start));
 
     if (piece) {
@@ -70,48 +72,44 @@ export class Board {
     }
   }
 
-  undoMove() {
+  undoMove(): Board {
     this.turn = this.turn === TeamType.W ? TeamType.B : TeamType.W;
     return this.fenReader(this.lastPosition);
   }
 
-  isKingInCheck(playedPiece, destination) {
+  isKingInCheck(playedPiece: Piece, destination: Position): { inCheck: boolean, checkingPiece: Piece | undefined } {
     const tempBoard = this.clone();
     const king = tempBoard.pieces.find(
       (p) => p.isKing && p.team === playedPiece.team
     );
 
+    if (!king) {
+      return { inCheck: false, checkingPiece: undefined };
+    }
+    
     if (tempBoard.squareIsOccupiedByOpp(destination, king.team)) {
       tempBoard.pieces = tempBoard.pieces.filter((p) => !p.samePosition(destination));
     }
 
     const tempPiece = tempBoard.pieces.find((p) => p.samePosition(playedPiece.position));
-    tempPiece.position = destination;
-    tempBoard.validMoves();
 
-    let checkingPiece = [];
-    checkingPiece = tempBoard.pieces.find((p) => {
+    if (tempPiece) {
+      tempPiece.position = destination;
+      tempBoard.validMoves();
+    }
+
+    const checkingPiece = tempBoard.pieces.find((p) => {
       if (p.possibleMoves) {
         return p.possibleMoves.some((move) => move.x === king.position.x && move.y === king.position.y);
       }
       return false;
     });
 
-    const inCheck = checkingPiece?.lenght > 0;
-    checkingPiece = checkingPiece?.lenght === 2 ? checkingPiece = undefined : checkingPiece;
-
+    const inCheck = !!checkingPiece;
     return { inCheck, checkingPiece };
   }
 
-  /**
-   * Checks if the move is an en passant capture try
-   * @param {*} initialPosition
-   * @param {*} desiredPosition
-   * @param {*} type
-   * @param {*} team
-   * @returns
-   */
-  isEnPassant(initialPosition, desiredPosition, type, team) {
+  isEnPassant(initialPosition: Position, desiredPosition: Position, type: string, team: string): boolean {
     if (type === PieceType.PAWN) {
       const pawnDirection = team === TeamType.W ? 1 : -1;
       if (
@@ -123,6 +121,7 @@ export class Board {
             p.samePosition(
               new Position(desiredPosition.x, desiredPosition.y - pawnDirection)
             ) &&
+            p instanceof Pawn &&
             p.enPassant &&
             p.team !== team
         );
@@ -132,18 +131,18 @@ export class Board {
     return false;
   }
 
-  isCastle(playedPiece, destination) {
+  isCastle(playedPiece: Piece, destination: Position): { castle: boolean, rook?: Piece } {
     if (playedPiece.isKing &&
       Math.abs(destination.x - playedPiece.position.x) === 2 &&
       destination.y === playedPiece.position.y &&
-      !playedPiece.hasMoved &&
+      (playedPiece instanceof King && !playedPiece.hasMoved) &&
       (playedPiece.position.y === 0 || playedPiece.position.y === 7)
     ) {
       const deltaX = destination.x > playedPiece.position.x ? 1 : -1;
       const rookX = destination.x > playedPiece.position.x ? 7 : 0;
       const rookPosition = new Position(rookX, playedPiece.position.y);
       const rook = this.pieces.find((piece) =>
-        piece.samePosition(rookPosition) && piece.isRook && !piece.hasMoved
+        piece.samePosition(rookPosition) && piece instanceof Rook && !piece.hasMoved
       );
 
       const pathClear = this.isPathNotOccupied(
@@ -156,12 +155,12 @@ export class Board {
       const squaresSafe = !playedPiece.inCheck(this.pieces) &&
         !playedPiece.inCheck(this.pieces, new Position(playedPiece.position.x + deltaX, playedPiece.position.y));
 
-      return { castle: rook && pathClear && squaresSafe, rook: rook };
+      return { castle: !!rook && pathClear && squaresSafe, rook };
     }
     return { castle: false };
   }
 
-  playMove(destination, playedPiece, promotionChoice = null) {
+  playMove(destination: Position, playedPiece: Piece, promotionChoice: string | null = null): boolean {
     const { inCheck, checkingPiece } = this.isKingInCheck(playedPiece, destination);
 
     if ((checkingPiece && !checkingPiece.samePosition(destination)) || inCheck) {
@@ -186,22 +185,25 @@ export class Board {
       playedPiece,
       destination
     );
-    if (castle.castle) {
+    if (castle.castle && castle.rook instanceof Rook) {
       this.lastPosition = this.getFen();
       // Rook update
       castle.rook.hasMoved = true;
       castle.rook.position = new Position(destination.x + (destination.x > playedPiece.position.x ? -1 : 1), playedPiece.position.y);
       this.validMoves();
       // King update
-      playedPiece.hasMoved = true;
+      if (playedPiece instanceof King) {
+        playedPiece.hasMoved = true;
+      }
       playedPiece.position = destination;
-
     }
     else if (enPassant) {
       this.lastPosition = this.getFen();
       this.pieces = this.pieces.reduce((results, piece) => {
         if (piece.samePosition(playedPiece.position)) {
-          piece.enPassant = false;
+          if (piece instanceof Pawn) {
+            piece.enPassant = false;
+          }
           piece.position = destination;
 
           results.push(piece);
@@ -210,11 +212,11 @@ export class Board {
             new Position(destination.x, destination.y - pawnDirection)
           )
         ) {
-          if (piece.isPawn) piece.enPassant = false;
+          if (piece instanceof Pawn) piece.enPassant = false;
           results.push(piece);
         }
         return results;
-      }, []);
+      }, [] as Piece[]);
       this.validMoves();
     }
 
@@ -226,27 +228,30 @@ export class Board {
           return results; // The piece taken isn't added to the array
         }
         else if (piece.samePosition(playedPiece.position)) {
-          piece.enPassant =
-            Math.abs(playedPiece.position.y - destination.y) === 2 &&
-            piece.isPawn; // This pawn can be taken en passant
+          if (piece instanceof Pawn) {
+            piece.enPassant =
+              Math.abs(playedPiece.position.y - destination.y) === 2 &&
+              piece instanceof Pawn; // This pawn can be taken en passant
+          }
           piece.position = destination;
-          if (piece.isKing)
+          if (piece instanceof King) {
             piece.hasMoved = true; // King castle rule
-          else if (piece.isRook)
+          } else if (piece instanceof Rook) {
             piece.hasMoved = true; // Rook castle rule
+          }
           if (promotionChoice) {
             const newPiece = this.createPromotedPiece(promotionChoice, destination, playedPiece.team);
             results.push(newPiece); // Add the new promoted piece to the array
           }
           results.push(piece); // Push the new piece position in the updatedPieces array
         } else {
-          if (piece.isPawn) {
+          if (piece instanceof Pawn) {
             piece.enPassant = false; // This pawn cannot be taken en passant
           }
           results.push(piece); // Push the remaining pieces in the updatedPieces array
         }
         return results;
-      }, []);
+      }, [] as Piece[]);
 
       this.validMoves();
     } else {
@@ -259,9 +264,9 @@ export class Board {
     return true;
   }
 
-  createPromotedPiece(promotionChoice, destination, team) {
-    let piece;
-    let type = pieceTypeFromChar(promotionChoice);
+  createPromotedPiece(promotionChoice: string, destination: Position, team: string): Piece {
+    let piece: Piece;
+    let type = pieceTypeFromChar(promotionChoice) || PieceType.QUEEN;
 
     switch (type) {
       case PieceType.ROOK:
@@ -276,10 +281,10 @@ export class Board {
     return piece;
   }
 
-  getValidMoves(piece) {
+  getValidMoves(piece: Piece): Position[] {
     switch (piece.type) {
       case PieceType.PAWN:
-        const possiblePawnMoves = [];
+        const possiblePawnMoves: Position[] = [];
         const pawnDirection = piece.team === TeamType.W ? 1 : -1;
         const specialRow = piece.team === TeamType.W ? 1 : 6;
         const normalMove = new Position(
@@ -324,6 +329,7 @@ export class Board {
           );
           if (
             leftPiece != null &&
+            leftPiece instanceof Pawn &&
             leftPiece.enPassant &&
             leftPiece.team !== piece.team
           )
@@ -337,6 +343,7 @@ export class Board {
           );
           if (
             rightPiece != null &&
+            rightPiece instanceof Pawn &&
             rightPiece.enPassant &&
             rightPiece.team !== piece.team
           )
@@ -403,7 +410,7 @@ export class Board {
         );
         return possibleQueenMoves;
       case PieceType.KING:
-        const possibleKingMoves = [];
+        const possibleKingMoves: Position[] = [];
         const directions = [
           { x: 1, y: 1 },
           { x: 1, y: 0 },
@@ -437,8 +444,8 @@ export class Board {
     }
   }
 
-  getMovesAlongDirections(piece, directions) {
-    const possibleMoves = [];
+  getMovesAlongDirections(piece: Piece, directions: { x: number, y: number }[]): Position[] {
+    const possibleMoves: Position[] = [];
     for (const dir of directions) {
       for (let i = 1; i < 8; i++) {
         const newPosition = new Position(
@@ -467,54 +474,26 @@ export class Board {
     return possibleMoves;
   }
 
-  /**
-   * Checks if the square is occupied
-   * @param {*} x
-   * @param {*} y
-   * @returns boolean
-   */
-
-  squareIsOccupied(position) {
+  squareIsOccupied(position: Position): boolean {
     const piece = this.pieces.find((p) => p.samePosition(position));
-    if (piece) return true;
-    else return false;
+    return !!piece;
   }
 
-  /**
-   * Checks if the square is occupied by Opponent
-   * @param {*} position
-   * @param {*} team
-   * @returns boolean
-   */
-  squareIsOccupiedByOpp(position, team) {
+  squareIsOccupiedByOpp(position: Position, team: string): boolean {
     const piece = this.pieces.find(
       (p) => p.samePosition(position) && p.team !== team
     );
-    if (piece) return true;
-    else return false;
+    return !!piece;
   }
-  /**
-   * Checks if the square is occupied by an allied piece
-   * @param {*} position
-   * @param {*} team
-   * @returns boolean
-   */
-  squareIsOccupiedByTeam(position, team) {
+
+  squareIsOccupiedByTeam(position: Position, team: string): boolean {
     const piece = this.pieces.find(
       (p) => p.samePosition(position) && p.team === team
     );
-    if (piece) return true;
-    else return false;
+    return !!piece;
   }
-  /**
-   * Checks if the road of the piece is free of pieces, doesn't check the destination square only the path
-   * @param {*} desiredPosition
-   * @param {*} initialPosition
-   * @param {*} dx
-   * @param {*} dy
-   * @returns
-   */
-  isPathNotOccupied(desiredPosition, initialPosition, dx, dy) {
+
+  isPathNotOccupied(desiredPosition: Position, initialPosition: Position, dx: number, dy: number): boolean {
     const numSteps = Math.max(
       Math.abs(desiredPosition.x - initialPosition.x),
       Math.abs(desiredPosition.y - initialPosition.y)
@@ -522,33 +501,26 @@ export class Board {
     for (let i = 1; i < numSteps; i++) {
       const x = initialPosition.x + i * dx;
       const y = initialPosition.y + i * dy;
-      if (this.squareIsOccupied({ x, y })) {
+      if (this.squareIsOccupied(new Position(x, y))) {
         return false;
       }
     }
     return true;
   }
 
-  /**
-   * Checks for each type of piece if the move is a legal one
-   * @param {*} initialPosition
-   * @param {*} desiredPosition
-   * @returns boolean
-   */
-  isValidMove(initialPosition, desiredPosition) {
+  isValidMove(initialPosition: Position, desiredPosition: Position): boolean {
     const currentPiece = this.pieces.find(p => p.samePosition(initialPosition));
-    return currentPiece?.possibleMoves.some(p => p.samePosition(desiredPosition));
+    return currentPiece?.possibleMoves.some(p => p.samePosition(desiredPosition)) || false;
   }
 
-  fenReader(fen) {
+  fenReader(fen: string): Board {
     const fenParts = fen.split(' ');
-    const boardState = [];
+    const boardState: Piece[] = [];
     const ranks = fenParts[0].split('/');
     const teamTurn = fenParts[1] === 'w' ? TeamType.W : TeamType.B;
     const castle = fenParts[2];
-    const moveCount = fenParts[5];
+    const moveCount = parseInt(fenParts[5]);
 
-    // Get enPassant square
     const enPassantPawnSquare = fenParts[3] !== '-' ? this.getEnPassantSquare(fenParts[3], teamTurn) : null;
 
     let x = 0;
@@ -559,13 +531,10 @@ export class Board {
         if (/\d/.test(char)) {
           x += parseInt(char);
         } else {
-          // Get team from lowercase or uppercase
           const team = /[a-z]/.test(char) ? TeamType.B : TeamType.W;
-          // Get type from char
-          const type = pieceTypeFromChar(char);
+          const type = pieceTypeFromChar(char) || "defaultType";
 
-
-          let piece;
+          let piece: Piece;
 
           switch (type) {
             case PieceType.PAWN:
@@ -605,7 +574,7 @@ export class Board {
     return new Board(boardState, teamTurn, moveCount);
   }
 
-  getFen() {
+  getFen(): string {
     let fen = '';
     let emptySquare = 0;
     for (let y = 7; y >= 0; y--) {
@@ -633,8 +602,6 @@ export class Board {
     }
     fen += ` ${this.turn}`;
 
-
-    // Castle rights
     const whiteKing = this.pieces.find(p => p.type === PieceType.KING && p.team === TeamType.W);
     const blackKing = this.pieces.find(p => p.type === PieceType.KING && p.team === TeamType.B);
 
@@ -642,24 +609,33 @@ export class Board {
     const blackRooks = this.pieces.filter(p => p.type === PieceType.ROOK && p.team === TeamType.B);
 
     let castleRights = '';
-    if (whiteKing && !whiteKing.hasMoved) {
-      const whiteKingSideRook = whiteRooks.find(r => r.position.x === 7);
-      const whiteQueenSideRook = whiteRooks.find(r => r.position.x === 0);
-      if (whiteKingSideRook && !whiteKingSideRook.hasMoved) castleRights += 'K';
-      if (whiteQueenSideRook && !whiteQueenSideRook.hasMoved) castleRights += 'Q';
+    if (whiteKing instanceof King && !whiteKing.hasMoved) {
+      const whiteKingSideRook = whiteRooks.find(r => r instanceof Rook && r.position.x === 7);
+      const whiteQueenSideRook = whiteRooks.find(r => r instanceof Rook && r.position.x === 0);
+      
+      if (whiteKingSideRook instanceof Rook && !whiteKingSideRook.hasMoved) {
+        castleRights += 'K';
+      }
+      if (whiteQueenSideRook instanceof Rook && !whiteQueenSideRook.hasMoved) {
+        castleRights += 'Q';
+      }
     }
 
-    if (blackKing && !blackKing.hasMoved) {
-      const blackKingSideRook = blackRooks.find(r => r.position.x === 7);
-      const blackQueenSideRook = blackRooks.find(r => r.position.x === 0);
-      if (blackKingSideRook && !blackKingSideRook.hasMoved) castleRights += 'k';
-      if (blackQueenSideRook && !blackQueenSideRook.hasMoved) castleRights += 'q';
+    if (blackKing instanceof King && !blackKing.hasMoved) {
+      const blackKingSideRook = blackRooks.find(r => r instanceof Rook && r.position.x === 7);
+      const blackQueenSideRook = blackRooks.find(r => r instanceof Rook && r.position.x === 0);
+      
+      if (blackKingSideRook instanceof Rook && !blackKingSideRook.hasMoved) {
+        castleRights += 'k';
+      }
+      if (blackQueenSideRook instanceof Rook && !blackQueenSideRook.hasMoved) {
+        castleRights += 'q';
+      }
     }
 
     fen += castleRights.length > 0 ? ` ${castleRights}` : ' -';
 
-    // En passant square
-    const enPassantPawn = this.pieces.find(p => p.type === PieceType.PAWN && p.enPassant);
+    const enPassantPawn = this.pieces.find(p => p instanceof Pawn && p.enPassant);
     if (enPassantPawn) {
       const enPassantTargetY = enPassantPawn.team === TeamType.W ? enPassantPawn.position.y - 1 : enPassantPawn.position.y + 1;
       const enPassantTargetSquare = new Position(enPassantPawn.position.x, enPassantTargetY).toString();
@@ -668,7 +644,6 @@ export class Board {
       fen += ' -';
     }
 
-    // Move counter
     fen += ` 0 ${this.moveCount}`;
     return fen;
   }

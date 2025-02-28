@@ -1,11 +1,26 @@
-<!-- src/views/ChessView.vue -->
 <template>
-    <div>
-        <h1>Chess Game</h1>
-        <ReactChess />
+    <div id="chess-view">
+        <!-- Use the chessboard component here -->
+        <ChessApp />
     </div>
 </template>
 
-<script setup lang="ts">
-import ReactChess from '../components/ReactChess.vue';
+<script>
+import ChessApp from '../chess/ChessApp.vue'; // Adjust the path as necessary
+
+export default {
+    name: 'ChessView',
+    components: {
+        ChessApp
+    }
+};
 </script>
+
+<style scoped>
+#chess-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+</style>
