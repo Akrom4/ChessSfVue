@@ -1,5 +1,5 @@
 <template>
-  <div id="pgnBox">
+  <div id="pgnBox" class="border border-light-pgn shadow-lg">
     <div id="pgnBoxInner">
       <div v-for="(chapter, index) in chapters" :key="index">
         <div class="movesContainer">
@@ -65,14 +65,15 @@ export default defineComponent({
 
 <style scoped>
 #pgnBox{
-    border-radius: 5vmin;
-    background-color: #FBFCFF;
-    height: 76vmin;
+    border-radius: 1vmin;
     width: 50vmin;
+    height: 80vmin;
     display: flex;
+    position: relative;
+    top: 0;
     flex-direction: column;
     padding: 2vmin 2vmin 2vmin 2vmin;
-    margin: 2vmin;
+    margin-left: 2vmin;
     font-family: "Roboto";
 }
 

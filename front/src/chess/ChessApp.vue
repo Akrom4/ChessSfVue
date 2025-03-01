@@ -23,9 +23,9 @@
 
 <script>
 import { ref, reactive, watch } from 'vue';
-import Referee from './components/Referee/Referee.vue';
-import PgnReader from './components/PgnReader/PgnReader.vue';
-import GameNavigator from './components/GameNavigator/GameNavigator.vue';
+import Referee from './components/Referee.vue';
+import PgnReader from './components/PgnReader.vue';
+import GameNavigator from './components/GameNavigator.vue';
 
 export default {
   components: {
@@ -96,9 +96,7 @@ export default {
 <style scoped>
 #chess-app {
     display: flex;
-    background-color: #D0CCD0;
     user-select: none;
-    align-items: center;
-    justify-content: center;
+    height: 100%;
 }
 </style>

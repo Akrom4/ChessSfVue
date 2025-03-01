@@ -7,7 +7,7 @@
 
 <script>
 import Referee from './components/Referee/Referee.vue';
-import PgnWrapper from './components/PgnReader/PgnWrapper.vue';
+import PgnWrapper from './components/pgnWrapper.vue';
 
 export default {
   components: {

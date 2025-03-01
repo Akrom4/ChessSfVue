@@ -49,7 +49,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted } from 'vue';
-import { Pgn } from '../../models';
+import { Pgn } from '../models';
 
 // Define a local interface for the course options
 interface CourseOption {

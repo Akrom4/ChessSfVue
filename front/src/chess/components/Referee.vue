@@ -24,19 +24,19 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
-import { initialBoard, PieceType, TeamType } from '../../Constants';
-import { Board } from '../../models/Board';
-import { Piece, Position } from '../../models';
-import Chessboard from '../../components/Chessboard/Chessboard.vue';
+import { initialBoard, PieceType, TeamType } from '../Constants';
+import { Board } from '../models/Board';
+import { Piece, Position } from '../models';
+import Chessboard from './Chessboard.vue';
 
-import whiteRook from '../../assets/images/chess_wr.svg';
-import whiteKnight from '../../assets/images/chess_wn.svg';
-import whiteBishop from '../../assets/images/chess_wb.svg';
-import whiteQueen from '../../assets/images/chess_wq.svg';
-import blackRook from '../../assets/images/chess_br.svg';
-import blackKnight from '../../assets/images/chess_bn.svg';
-import blackBishop from '../../assets/images/chess_bb.svg';
-import blackQueen from '../../assets/images/chess_bq.svg';
+import whiteRook from '../assets/images/chess_wr.svg';
+import whiteKnight from '../assets/images/chess_wn.svg';
+import whiteBishop from '../assets/images/chess_wb.svg';
+import whiteQueen from '../assets/images/chess_wq.svg';
+import blackRook from '../assets/images/chess_br.svg';
+import blackKnight from '../assets/images/chess_bn.svg';
+import blackBishop from '../assets/images/chess_bb.svg';
+import blackQueen from '../assets/images/chess_bq.svg';
 
 export default defineComponent({
   name: 'Referee',
