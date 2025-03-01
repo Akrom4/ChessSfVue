@@ -1,16 +1,16 @@
 <template>
-  <div class="flex justify-between items-stretch mt-4 shadow-lg rounded-b-lg border border-light-pgn">
-    <button @click="moveToStart" title="Start" class="h-full hover:bg-green-500">
-      <ChevronDoubleLeftIcon class="w-8 h-8" />
+  <div class="flex justify-between md:justify-center items-stretch mt-4">
+    <button @click="moveToStart" title="Start" class="h-full bg-light-pgn hover:bg-green-500">
+      <ChevronDoubleLeftIcon class="w-10 h-10 text-dark-pgn" />
     </button>
-    <button @click="moveToPrev" title="Prev" class="h-full hover:bg-green-500">
-      <ChevronLeftIcon class="w-8 h-8" />
+    <button @click="moveToPrev" title="Prev" class="h-full bg-light-pgn hover:bg-green-500">
+      <ChevronLeftIcon class="w-10 h-10 text-dark-pgn" />
     </button>
-    <button @click="moveToNext" title="Next" class="h-full hover:bg-green-500">
-      <ChevronRightIcon class="w-8 h-8" />
+    <button @click="moveToNext" title="Next" class="h-full bg-light-pgn hover:bg-green-500">
+      <ChevronRightIcon class="w-10 h-10 text-dark-pgn" />
     </button>
-    <button @click="moveToEnd" title="End" class="h-full hover:bg-green-500">
-      <ChevronDoubleRightIcon class="w-8 h-8" />
+    <button @click="moveToEnd" title="End" class="h-full bg-light-pgn hover:bg-green-500">
+      <ChevronDoubleRightIcon class="w-10 h-10 text-dark-pgn" />
     </button>
   </div>
 </template>

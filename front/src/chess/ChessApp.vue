@@ -99,4 +99,9 @@ export default {
     user-select: none;
     height: 100%;
 }
+@media (max-width: 768px) {
+    #chess-app {
+        flex-direction: column;
+    }
+}
 </style>

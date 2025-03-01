@@ -8,4 +8,6 @@
     --color-nav-mobile-button: oklch(48% 0.0986 254.57);
     --color-custom-yellow: oklch(90.13% 0.1618 104.6);
     --color-light-pgn: oklch(90.43% 0.0689 273.85);
+    --color-dark-pgn: oklch(32.43% 0.0986 254.57);
+
 }

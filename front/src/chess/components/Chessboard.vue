@@ -270,17 +270,17 @@ export default defineComponent({
   border-radius: 3vmin;
 }
 
-@media screen and (max-width:800px) {
+@media screen and (max-width:768px) {
   #chessboard {
-    height: 100vmin;
-    width: 100vmin;
-    grid-template-columns: repeat(8,  12.5vmin);
-    grid-template-rows: repeat(8, 12.5vmin);
+    height: 80vmin;
+    width: 80vmin;
+    grid-template-columns: repeat(8,  1fr);
+    grid-template-rows: repeat(8, 1fr);
   }
 
   .piece {
-    width: 12.5vmin;
-    height: 12.5vmin;
+    width: 10vmin;
+    height: 10vmin;
   }
 }
 </style>

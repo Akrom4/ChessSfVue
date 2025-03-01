@@ -81,10 +81,19 @@ export default defineComponent({
     color: #214a7c;
     font-weight: bold;
     padding-bottom: 1vmin;
-    font-size: 1.3750em	;
+    font-size: 1.125em	;
 }
 
 .comments{
-    font-size: 1.2250em;
+    font-size: 1em;
 }
+
+@media (max-width: 768px) {
+    #pgnBox{
+        width: 100%;
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+}
+
 </style>
