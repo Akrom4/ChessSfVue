@@ -91,4 +91,16 @@ class UserController extends AbstractController
 
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
     }
+
+    #[Route('/api/me', name: 'api_user_me', methods: ['GET'])]
+    public function me(SerializerInterface $serializer): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['message' => 'Not authenticated'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $jsonUser = $serializer->serialize($user, 'json', ['groups' => 'user:read']);
+        return new JsonResponse($jsonUser, JsonResponse::HTTP_OK, [], true);
+    }
 }

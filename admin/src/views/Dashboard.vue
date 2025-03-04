@@ -1,5 +1,5 @@
 <script setup>
-import AppTopbar from "../components/AppTopbar.vue";
+import AppTopbar from "../layouts/AppTopbar.vue";
 import StatsWidget from "../components/dashboard/StatsWidget.vue";
 import SalesTrendWidget from "../components/dashboard/SalesTrendWidget.vue";
 import RecentActivityWidget from "../components/dashboard/RecentActivityWidget.vue";

@@ -1,10 +1,10 @@
 import { updatePrimaryPalette, updateSurfacePalette } from "@primeuix/themes";
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 
 const appState = ref({
     primary: "blue",
     surface: "slate",
-    darkMode: false
+    darkMode: true
 });
 
 const primaryColors = ref([
@@ -430,6 +430,12 @@ export function useLayout() {
             updateSurfacePalette(surfaceColor.palette);
         }
     }
+
+    onMounted(() => {
+        if (appState.value.darkMode) {
+            document.documentElement.classList.add("p-dark");
+        }
+    });
 
     const isDarkMode = computed(() => appState.value.darkMode);
     const primary = computed(() => appState.value.primary);
