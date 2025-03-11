@@ -19,4 +19,6 @@ vendor/
 **/logs/**
 **/log/
 **/log/**
-back/var/log/dev.deprecations.log
+**/back/var/log/dev.deprecations.log
+**/back/var/log/dev.log
+
