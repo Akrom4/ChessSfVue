@@ -1,54 +1,51 @@
 security:
-    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    # Register user password hashers
     password_hashers:
         App\Entity\User: 'auto'
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-            algorithm: 'auto'
-            cost: 15
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+
+    # Define user providers from the User entity using the "username" property
     providers:
         app_user_provider:
             entity:
                 class: App\Entity\User
                 property: username
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
+        # Firewall for login requests.
+        # This handles the /api/login endpoint where your custom login controller sets the JWT cookie.
         login:
-            pattern: ^/api/authentication_token
+            pattern: ^/api/login
             stateless: true
-            json_login:
-                check_path: api_login_check
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        # API firewall uses your custom JWT cookie authenticator for all other API routes.
         api:
             pattern: ^/api
             stateless: true
-            jwt: ~
+            custom_authenticators:
+                - App\Security\JwtCookieAuthenticator
+
+        # Optional: a separate firewall for the main part of your application if needed.
         main:
             lazy: true
             provider: app_user_provider
             stateless: true
-            jwt: ~
+            custom_authenticators:
+                - App\Security\JwtCookieAuthenticator
 
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
+    # Access control: public access for the login route; all other /api routes require full authentication.
     access_control:
-        - { path: ^/api/authentication_token, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: PUBLIC_ACCESS }
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
     
 when@test:
     security:
         password_hashers:
-            # By default, password hashers are resource intensive and take time. This is
-            # important to generate secure password hashes. In tests however, secure hashes
-            # are not important, waste resources and increase test times. The following
-            # reduces the work factor to the lowest possible values.
             Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
                 algorithm: auto
-                cost: 4 # Lowest possible value for bcrypt
-                time_cost: 3 # Lowest possible value for argon
-                memory_cost: 10 # Lowest possible value for argon
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

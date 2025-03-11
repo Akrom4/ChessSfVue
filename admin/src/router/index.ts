@@ -27,21 +27,28 @@ const router = createRouter({
   ],
 })
 
-// Navigation guard
-router.beforeEach((to, from, next) => {
-  const { checkAuth, isAuthenticated } = useAuth()
-  
-  // Check if authentication is required
+router.beforeEach(async (to, from, next) => {
+  console.log('router.beforeEach:', { from: from.path, to: to.path })
+  const { isAuthenticated, checkAuth } = useAuth()
+
   if (to.meta.requiresAuth) {
-    // Check if user is authenticated
-    if (!isAuthenticated.value && !checkAuth()) {
-      // Redirect to login if not authenticated
-      next({ name: 'Login', query: { redirect: to.fullPath } })
+    console.log('Route requires auth:', to.path)
+    if (!isAuthenticated.value) {
+      console.log('User not authenticated, running checkAuth...')
+      const validAuth = await checkAuth()
+      if (!validAuth) {
+        console.log('checkAuth failed, redirecting to login')
+        next({ name: 'Login', query: { redirect: to.fullPath } })
+      } else {
+        console.log('checkAuth succeeded, proceeding to route')
+        next()
+      }
     } else {
+      console.log('User already authenticated, proceeding')
       next()
     }
   } else {
-    // If route doesn't require auth, allow access
+    console.log('Route does not require auth, proceeding')
     next()
   }
 })

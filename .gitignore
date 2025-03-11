@@ -17,3 +17,6 @@ vendor/
 # Ignore all logs directories
 **/logs/
 **/logs/**
+**/log/
+**/log/**
+back/var/log/dev.deprecations.log

@@ -19,7 +19,7 @@
             class="p-2 rounded-full hover:bg-surface-200 dark:hover:bg-surface-800 transition-colors duration-200"
             @click="toggleSidebar"
           >
-            <i class="pi pi-bars text-surface-700 dark:text-surface-200"></i>
+            <i :class="[isCollapsed ? 'pi pi-bars' : 'pi pi-arrow-left', 'text-surface-700 dark:text-surface-200']"></i>
           </button>
         </div>
         <nav class="p-4">
@@ -90,24 +90,24 @@
       path: '/',
       icon: 'pi pi-home'
     },
-    {
-      label: 'Products',
-      path: '/products',
-      icon: 'pi pi-box'
-    },
-    {
-      label: 'Orders',
-      path: '/orders',
-      icon: 'pi pi-shopping-cart'
-    },
-    {
-      label: 'Settings',
-      path: '/settings',
-      icon: 'pi pi-cog'
-    }
+    // {
+    //   label: 'Products',
+    //   path: '/products',
+    //   icon: 'pi pi-box'
+    // },
+    // {
+    //   label: 'Orders',
+    //   path: '/orders',
+    //   icon: 'pi pi-shopping-cart'
+    // },
+    // {
+    //   label: 'Settings',
+    //   path: '/settings',
+    //   icon: 'pi pi-cog'
+    // }
   ]
   </script>
   
   <style scoped>
   
-  </style> 
+  </style>
