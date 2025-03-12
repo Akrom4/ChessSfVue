@@ -54,7 +54,10 @@
     <!-- Main Content -->
     <main class="flex-1 transition-all duration-300 ease-in-out bg-surface-50 dark:bg-surface-900"
       :class="{ 'ml-16': isCollapsed, 'ml-64': !isCollapsed }">
-      <router-view></router-view>
+      <div class="p-4">
+        <Breadcrumb />
+        <router-view></router-view>
+      </div>
     </main>
   </div>
 </template>
@@ -65,6 +68,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import { useLayout } from '../composables/useLayout'
 import { useAuth } from '../composables/useAuth'
 import AppConfig from '../components/AppConfig.vue'
+import Breadcrumb from '../components/Breadcrumb.vue'
 
 const { isDarkMode, toggleDarkMode, primary, surface } = useLayout()
 const { logout } = useAuth()
