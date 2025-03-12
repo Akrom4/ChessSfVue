@@ -35,7 +35,6 @@ export function useAuth() {
 
   const login = async (username: string, password: string) => {
     try {
-      console.log('Attempting login with:', username);
       const response = await api.post('/login', { username, password });
       
       if (response.status === 200) {
@@ -43,10 +42,8 @@ export function useAuth() {
           const { data: userData } = await api.get('/me');
           user.value = userData;
           isAuthenticated.value = true;
-          console.log('Login successful, user:', user.value);
           return { success: true };
         } catch (error) {
-          console.error('Failed to get user data after login:', error);
           isAuthenticated.value = false;
           return { 
             success: false, 
@@ -61,7 +58,10 @@ export function useAuth() {
         };
       }
     } catch (error: any) {
-      console.error('login error:', error);
+      if (!(error.response?.status === 401)) {
+        console.error('login error:', error);
+      }
+      
       isAuthenticated.value = false;
       let errorMessage = 'Une erreur est survenue lors de la connexion';
       
