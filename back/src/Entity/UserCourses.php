@@ -11,7 +11,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserCoursesRepository;
-
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: UserCoursesRepository::class)]
@@ -32,6 +33,13 @@ use App\Repository\UserCoursesRepository;
         new Delete(
             security: "is_granted('ROLE_USER') and object.userid == user"
         )
+    ],
+    normalizationContext: [
+        'groups' => ['course:read'],
+        'enable_max_depth' => true
+    ],
+    denormalizationContext: [
+        'groups' => ['course:write']
     ]
 )]
 class UserCourses
@@ -39,26 +47,35 @@ class UserCourses
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['course:read', 'user:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'userCourses')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['course:read', 'course:write'])]
+    #[MaxDepth(1)]
     private ?User $userid = null;
 
     #[ORM\ManyToOne(inversedBy: 'userCourses')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['course:read', 'course:write', 'user:read'])]
+    #[MaxDepth(1)]
     private ?Courses $courseid = null;
 
     #[ORM\Column(type: Types::ARRAY, nullable: true)]
+    #[Groups(['course:read', 'course:write', 'user:read'])]
     private array $completedChapters = [];
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['course:read', 'course:write', 'user:read'])]
     private ?int $completionPercentage = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['course:read', 'user:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['course:read', 'user:read'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function getId(): ?int
@@ -120,9 +137,9 @@ class UserCourses
     }
 
     #[ORM\PrePersist]
-    public function setCreatedAt(?\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(): self
     {
-        $this->createdAt = $createdAt;
+        $this->createdAt = new \DateTimeImmutable();
 
         return $this;
     }
@@ -134,9 +151,9 @@ class UserCourses
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(): self
     {
-        $this->updatedAt = $updatedAt;
+        $this->updatedAt = new \DateTime();
 
         return $this;
     }

@@ -3,6 +3,8 @@ import Dashboard from '../views/Dashboard.vue'
 import Login from '../views/Login.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import NotFound from '../views/NotFound.vue'
+import Users from '../views/Users.vue'
+import CoursesList from '../views/Courses.vue'
 import { useAuth } from '../composables/useAuth'
 
 const router = createRouter({
@@ -27,12 +29,50 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
-          path: 'chess',
-          name: 'Chess',
-          component: () => import('../views/Dashboard.vue'),
-          meta: { requiresAuth: true }
+          path: 'users',
+          name: 'Users',
+          component: Users,
+          meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
         },
-        // Add other authenticated routes here
+        // Courses routes
+        {
+          path: 'courses',
+          name: 'Courses',
+          component: CoursesList,
+          meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
+        },
+        // {
+        //   path: 'courses/create',
+        //   name: 'CourseCreate',
+        //   component: () => import('../views/courses/CourseCreate.vue'),
+        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
+        // },
+        // {
+        //   path: 'courses/edit/:id',
+        //   name: 'CourseEdit',
+        //   component: () => import('../views/courses/CourseEdit.vue'),
+        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
+        // },
+        // // Chapters routes (nested under a course)
+        // {
+        //   path: 'courses/:courseId/chapters',
+        //   name: 'Chapters',
+        //   component: () => import('../views/chapters/ChaptersList.vue'),
+        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
+        // },
+        // {
+        //   path: 'courses/:courseId/chapters/create',
+        //   name: 'ChapterCreate',
+        //   component: () => import('../views/chapters/ChapterCreate.vue'),
+        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
+        // },
+        // {
+        //   path: 'courses/:courseId/chapters/edit/:id',
+        //   name: 'ChapterEdit',
+        //   component: () => import('../views/chapters/ChapterEdit.vue'),
+        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
+        // },
+        // // Add other authenticated routes here
       ]
     },
     // 404 Not Found route - must be last
@@ -47,7 +87,7 @@ const router = createRouter({
 
 // Navigation guard
 router.beforeEach(async (to, from, next) => {
-  const { checkAuth, isAuthenticated } = useAuth()
+  const { checkAuth, isAuthenticated, user } = useAuth()
   
   console.log('Navigating to:', to.path)
   console.log('Is authenticated:', isAuthenticated.value)
@@ -79,6 +119,17 @@ router.beforeEach(async (to, from, next) => {
     console.log('No matching route found, redirecting to NotFound')
     next({ name: 'NotFound' })
     return
+  }
+  
+  // Check for role-based access
+  if (to.meta.roles && Array.isArray(to.meta.roles) && to.meta.roles.length > 0) {
+    const hasRequiredRole = to.meta.roles.some(role => user.value?.roles.includes(role))
+    
+    if (!hasRequiredRole) {
+      console.log('User does not have required role, redirecting to dashboard')
+      next({ name: 'Dashboard' })
+      return
+    }
   }
 
   // Check if the authenticated user has access to this route

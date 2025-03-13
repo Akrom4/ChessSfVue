@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import api from '../lib/axios'
 
 interface User {
@@ -16,6 +16,7 @@ const user = ref<User | null>(null)
 
 export function useAuth() {
   const router = useRouter()
+  const route = useRoute()
 
   const verifyExistingAuth = async () => {
     try {
@@ -35,13 +36,22 @@ export function useAuth() {
 
   const login = async (username: string, password: string) => {
     try {
+      console.log('Attempting login with username:', username);
+      // Use the original login endpoint
       const response = await api.post('/login', { username, password });
       
       if (response.status === 200) {
+        console.log('Login successful, token received:', response.data);
         try {
           const { data: userData } = await api.get('/me');
           user.value = userData;
           isAuthenticated.value = true;
+          
+          // Check if we have a redirect query parameter and navigate there
+          const redirectPath = route.query.redirect as string || '/';
+          console.log(`Redirecting to: ${redirectPath}`);
+          router.push(redirectPath);
+          
           return { success: true };
         } catch (error) {
           isAuthenticated.value = false;
@@ -81,13 +91,15 @@ export function useAuth() {
 
   const logout = async () => {
     console.log('Logging out user');
-    try {
-      await api.post('/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    // With JWT auth, logout is typically handled on the client side
+    // by removing the token. No server call needed unless you're
+    // using a token blacklist or refresh tokens.
+    
+    // Clear authenticated state
     isAuthenticated.value = false;
     user.value = null;
+    
+    // Redirect to login page
     router.push('/login');
     console.log('Redirected to login page');
   };

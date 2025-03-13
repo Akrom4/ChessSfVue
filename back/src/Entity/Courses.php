@@ -6,6 +6,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiFilter;
@@ -17,66 +18,89 @@ use Doctrine\Common\Collections\ArrayCollection;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\HasLifecycleCallbacks]
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: CoursesRepository::class)]
-#[ApiResource( operations: [
-    new Get(),
-    new Put(
-        security: "is_granted('ROLE_ADMIN')"),
-    new Post(
-        security: "is_granted('ROLE_ADMIN')",
-    ),
-])]
+#[ApiResource( 
+    operations: [
+        new Get(),
+        new Put(
+            security: "is_granted('ROLE_ADMIN')"),
+        new Post(
+            security: "is_granted('ROLE_ADMIN')",
+        ),
+        new Delete(
+            security: "is_granted('ROLE_ADMIN')",
+        ),
+    ],
+    normalizationContext: [
+        'groups' => ['course:read'],
+        'enable_max_depth' => true
+    ],
+    denormalizationContext: [
+        'groups' => ['course:write']
+    ]
+)]
 #[GetCollection]
 #[ApiFilter(SearchFilter::class, properties: ['id' => 'exact', 'title' => 'partial', 'description' => 'partial'])]
-
 class Courses
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-
+    #[Groups(['course:read', 'course:write', 'user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['course:read', 'course:write', 'user:read'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 1000, nullable: true)]
+    #[Groups(['course:read', 'course:write'])]
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['course:read', 'course:write'])]
     private ?string $image = null;
 
     #[ORM\Column]
+    #[Groups(['course:read'])]
     private ?\DateTimeImmutable $createdat = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['course:read'])]
     private ?\DateTimeInterface $updatedat = null;
 
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: Chapter::class)]
+    #[Groups(['course:read'])]
+    #[MaxDepth(1)]
     private Collection $chapters;
 
     #[Vich\UploadableField(mapping: "course_images", fileNameProperty: "image")]
     private ?File $imageFile = null;
 
     #[ORM\OneToMany(mappedBy: 'courseid', targetEntity: UserCourses::class, orphanRemoval: true)]
+    #[Groups(['course:read'])]
+    #[MaxDepth(1)]
     private Collection $userCourses;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['course:read', 'course:write'])]
     private ?string $author = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['course:read', 'course:write'])]
     private ?string $colorside = null;
-
-
 
     public function __construct()
     {
         $this->chapters = new ArrayCollection();
         $this->userCourses = new ArrayCollection();
     }
+    
     public function getImageFile(): ?File
     {
         return $this->imageFile;
@@ -91,6 +115,7 @@ class Courses
 
         return $this;
     }
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -138,9 +163,9 @@ class Courses
     }
 
     #[ORM\PrePersist]
-    public function setCreatedat(\DateTimeImmutable $createdat): self
+    public function setCreatedat(): self
     {
-        $createdat ? $this->createdat = $createdat : $this->createdat = new \DateTimeImmutable();
+        $this->createdat = new \DateTimeImmutable();
 
         return $this;
     }
@@ -152,9 +177,9 @@ class Courses
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function setUpdatedat(?\DateTimeInterface $updatedat): self
+    public function setUpdatedat(): self
     {
-        $this->updatedat = $updatedat;
+        $this->updatedat = new \DateTime();
 
         return $this;
     }

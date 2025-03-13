@@ -1,13 +1,13 @@
 <template>
-  <nav class="p-4 bg-surface-0 dark:bg-surface-800 rounded-lg shadow-sm mb-4">
+  <nav class="p-2 bg-surface-0 dark:bg-surface-800 rounded-lg shadow-sm mb-2 gap-2">
     <ol class="flex flex-wrap items-center">
-      <li v-for="(item, index) in items" :key="index" class="flex items-center">
+      <li v-for="(item, index) in breadcrumbItems" :key="index" class="flex items-center">
         <!-- Icon (if provided) -->
         <i v-if="item.icon" :class="[item.icon, 'text-primary mr-2']"></i>
         
         <!-- Link for non-active items -->
         <router-link 
-          v-if="index !== items.length - 1" 
+          v-if="index !== breadcrumbItems.length - 1" 
           :to="item.to"
           class="text-primary hover:text-primary-600 transition-colors"
         >
@@ -24,7 +24,7 @@
         
         <!-- Separator between items -->
         <i 
-          v-if="index !== items.length - 1" 
+          v-if="index !== breadcrumbItems.length - 1" 
           class="pi pi-angle-right mx-2 text-surface-400 dark:text-surface-500"
         ></i>
       </li>
@@ -33,6 +33,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useBreadcrumb, BreadcrumbItem } from '../composables/useBreadcrumb';
 
 // Props
@@ -42,5 +43,7 @@ const props = defineProps<{
 
 // Get breadcrumbs from the composable if not provided
 const { breadcrumbs } = useBreadcrumb();
-const items = props.items || breadcrumbs.value;
+
+// Compute the breadcrumb items based on props or the breadcrumbs from the composable
+const breadcrumbItems = computed(() => props.items || breadcrumbs.value);
 </script> 

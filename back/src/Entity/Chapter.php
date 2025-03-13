@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiFilter;
@@ -17,6 +18,9 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
     new Get(),
     new Put(security: "is_granted('ROLE_ADMIN')"),
     new Post(
+        security: "is_granted('ROLE_ADMIN')",
+    ),
+    new Delete(
         security: "is_granted('ROLE_ADMIN')",
     ),
 ])]

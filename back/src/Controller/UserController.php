@@ -39,6 +39,15 @@ class UserController extends AbstractController
         $user->setUsername($data['username']);
         $user->setEmail($data['email']);
         $user->setCreatedAt(new \DateTimeImmutable());
+        
+        // Handle roles - with validation to ensure only admins can set ROLE_ADMIN
+        if (isset($data['roles']) && is_array($data['roles'])) {
+            // Optional: Check if current user has permission to set these roles
+            if (in_array('ROLE_ADMIN', $data['roles']) && !$this->isGranted('ROLE_ADMIN')) {
+                return new JsonResponse(['error' => 'You cannot assign ROLE_ADMIN'], JsonResponse::HTTP_FORBIDDEN);
+            }
+            $user->setRoles($data['roles']);
+        }
 
         $plainPassword = $data['password'];
         $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
@@ -69,6 +78,15 @@ class UserController extends AbstractController
         $user->setUsername($data['username'] ?? $user->getUsername());
         $user->setEmail($data['email'] ?? $user->getEmail());
         $user->setUpdatedAt(new \DateTime());
+
+        // Handle roles - with validation
+        if (isset($data['roles']) && is_array($data['roles'])) {
+            // Optional: Check if current user has permission to set these roles
+            if (in_array('ROLE_ADMIN', $data['roles']) && !$this->isGranted('ROLE_ADMIN')) {
+                return new JsonResponse(['error' => 'You cannot assign ROLE_ADMIN'], JsonResponse::HTTP_FORBIDDEN);
+            }
+            $user->setRoles($data['roles']);
+        }
 
         if (!empty($data['password'])) {
             $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));

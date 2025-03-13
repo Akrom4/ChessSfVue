@@ -63,16 +63,70 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { ref, watch } from 'vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useLayout } from '../composables/useLayout'
 import { useAuth } from '../composables/useAuth'
+import { useBreadcrumb, BreadcrumbItem } from '../composables/useBreadcrumb'
 import AppConfig from '../components/AppConfig.vue'
 import Breadcrumb from '../components/Breadcrumb.vue'
 
 const { isDarkMode, toggleDarkMode, primary, surface } = useLayout()
 const { logout } = useAuth()
+const { setBreadcrumb, getRouteDisplayName } = useBreadcrumb()
+const route = useRoute()
 const isCollapsed = ref(false)
+
+// Watch for route changes to set breadcrumbs for specific routes
+watch(() => route.name, (newRouteName) => {
+  if (newRouteName === 'Users') {
+    // Use the route name map for consistent text
+    setBreadcrumb('Users', [
+      { text: getRouteDisplayName('Dashboard'), to: '/', icon: 'pi pi-home' },
+      { text: getRouteDisplayName('Users'), to: '/users', icon: 'pi pi-users' }
+    ])
+  } else if (newRouteName === 'Courses') {
+    setBreadcrumb('Courses', [
+      { text: getRouteDisplayName('Dashboard'), to: '/', icon: 'pi pi-home' },
+      { text: getRouteDisplayName('Courses'), to: '/courses', icon: 'pi pi-book' }
+    ])
+  } else if (newRouteName === 'CourseCreate') {
+    setBreadcrumb('CourseCreate', [
+      { text: getRouteDisplayName('Dashboard'), to: '/', icon: 'pi pi-home' },
+      { text: getRouteDisplayName('Courses'), to: '/courses', icon: 'pi pi-book' },
+      { text: getRouteDisplayName('CourseCreate'), to: '/courses/create', icon: 'pi pi-plus' }
+    ])
+  } else if (newRouteName === 'CourseEdit') {
+    setBreadcrumb('CourseEdit', [
+      { text: getRouteDisplayName('Dashboard'), to: '/', icon: 'pi pi-home' },
+      { text: getRouteDisplayName('Courses'), to: '/courses', icon: 'pi pi-book' },
+      { text: getRouteDisplayName('CourseEdit'), to: '', icon: 'pi pi-pencil' }
+    ])
+  } else if (newRouteName === 'Chapters') {
+    const courseId = route.params.courseId as string;
+    setBreadcrumb('Chapters', [
+      { text: getRouteDisplayName('Dashboard'), to: '/', icon: 'pi pi-home' },
+      { text: getRouteDisplayName('Courses'), to: '/courses', icon: 'pi pi-book' },
+      { text: getRouteDisplayName('Chapters'), to: `/courses/${courseId}/chapters`, icon: 'pi pi-list' }
+    ])
+  } else if (newRouteName === 'ChapterCreate') {
+    const courseId = route.params.courseId as string;
+    setBreadcrumb('ChapterCreate', [
+      { text: getRouteDisplayName('Dashboard'), to: '/', icon: 'pi pi-home' },
+      { text: getRouteDisplayName('Courses'), to: '/courses', icon: 'pi pi-book' },
+      { text: getRouteDisplayName('Chapters'), to: `/courses/${courseId}/chapters`, icon: 'pi pi-list' },
+      { text: getRouteDisplayName('ChapterCreate'), to: '', icon: 'pi pi-plus' }
+    ])
+  } else if (newRouteName === 'ChapterEdit') {
+    const courseId = route.params.courseId as string;
+    setBreadcrumb('ChapterEdit', [
+      { text: getRouteDisplayName('Dashboard'), to: '/', icon: 'pi pi-home' },
+      { text: getRouteDisplayName('Courses'), to: '/courses', icon: 'pi pi-book' },
+      { text: getRouteDisplayName('Chapters'), to: `/courses/${courseId}/chapters`, icon: 'pi pi-list' },
+      { text: getRouteDisplayName('ChapterEdit'), to: '', icon: 'pi pi-pencil' }
+    ])
+  }
+}, { immediate: true })
 
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
@@ -85,17 +139,17 @@ const handleLogout = () => {
 // Example menu items - you can modify these based on your routes
 const menuItems = [
   {
-    label: 'Accueil',
+    label: getRouteDisplayName('Dashboard'),
     path: '/',
     icon: 'pi pi-home'
   },
   {
-    label: 'Utilisateurs',
+    label: getRouteDisplayName('Users'),
     path: '/users',
     icon: 'pi pi-users'
   },
   {
-    label: 'Cours',
+    label: getRouteDisplayName('Courses'),
     path: '/courses',
     icon: 'pi pi-book'
   }
