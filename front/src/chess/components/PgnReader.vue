@@ -5,18 +5,11 @@
         <div class="movesContainer">
           <template v-for="(move, index) in chapter.Moves" :key="index">
             <span v-if="move.teamColor === 'w'" class="moveNumber">{{ move.moveNumber }}.&nbsp;</span>
-            <span
-              class="moves"
-              :data-fen="move.position"
-              @click="handleMoveClick(move)"
-            >
+            <span class="moves" :data-fen="move.position" @click="handleMoveClick(move)">
               {{ move.move }}&nbsp;
             </span>
-            <div
-              v-for="(comment, index) in renderComments(chapter.Comments, move.moveNumber, move.teamColor)"
-              :key="index"
-              class="comment"
-            >
+            <div v-for="(comment, index) in renderComments(chapter.Comments, move.moveNumber, move.teamColor)"
+              :key="index" class="comment">
               {{ comment }}
             </div>
           </template>
@@ -42,13 +35,27 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const chapters = computed(() => props.pgnData?.chapter || []);
+    const chapters = computed(() => {
+      if (!props.pgnData) return [];
+
+      if (props.pgnData.chapter) {
+        return props.pgnData.chapter || [];
+      }
+
+      if (props.pgnData.Moves) {
+        return [props.pgnData];
+      }
+
+      return [];
+    });
 
     const handleMoveClick = (move: any) => {
       props.onMoveClick(move, move.position);
     };
 
     const renderComments = (comments: any[], moveNumber: number, color: string) => {
+      if (!comments) return [];
+
       return comments
         .filter(comment => comment.moveNumber === moveNumber && comment.teamColor === color)
         .map(comment => String(comment.text).replace(/\[%cal .*?\]/g, ''));
@@ -64,36 +71,35 @@ export default defineComponent({
 </script>
 
 <style scoped>
-#pgnBox{
-    border-radius: 1vmin;
-    width: 50vmin;
-    height: 80vmin;
-    display: flex;
-    position: relative;
-    top: 0;
-    flex-direction: column;
-    padding: 2vmin 2vmin 2vmin 2vmin;
-    margin-left: 2vmin;
-    font-family: "Roboto";
+#pgnBox {
+  border-radius: 1vmin;
+  width: 50vmin;
+  height: 80vmin;
+  display: flex;
+  position: relative;
+  top: 0;
+  flex-direction: column;
+  padding: 2vmin 2vmin 2vmin 2vmin;
+  margin-left: 2vmin;
+  font-family: "Roboto";
 }
 
-.moves{
-    color: #214a7c;
-    font-weight: bold;
-    padding-bottom: 1vmin;
-    font-size: 1.125em	;
+.moves {
+  color: #214a7c;
+  font-weight: bold;
+  padding-bottom: 1vmin;
+  font-size: 1.125em;
 }
 
-.comments{
-    font-size: 1em;
+.comments {
+  font-size: 1em;
 }
 
 @media (max-width: 768px) {
-    #pgnBox{
-        width: 100%;
-        margin-left: 0;
-        margin-top: 1rem;
-    }
+  #pgnBox {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 1rem;
+  }
 }
-
 </style>

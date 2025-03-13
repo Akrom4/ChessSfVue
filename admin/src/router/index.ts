@@ -41,38 +41,24 @@ const router = createRouter({
           component: CoursesList,
           meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
         },
-        // {
-        //   path: 'courses/create',
-        //   name: 'CourseCreate',
-        //   component: () => import('../views/courses/CourseCreate.vue'),
-        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
-        // },
-        // {
-        //   path: 'courses/edit/:id',
-        //   name: 'CourseEdit',
-        //   component: () => import('../views/courses/CourseEdit.vue'),
-        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
-        // },
-        // // Chapters routes (nested under a course)
-        // {
-        //   path: 'courses/:courseId/chapters',
-        //   name: 'Chapters',
-        //   component: () => import('../views/chapters/ChaptersList.vue'),
-        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
-        // },
-        // {
-        //   path: 'courses/:courseId/chapters/create',
-        //   name: 'ChapterCreate',
-        //   component: () => import('../views/chapters/ChapterCreate.vue'),
-        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
-        // },
-        // {
-        //   path: 'courses/:courseId/chapters/edit/:id',
-        //   name: 'ChapterEdit',
-        //   component: () => import('../views/chapters/ChapterEdit.vue'),
-        //   meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
-        // },
-        // // Add other authenticated routes here
+        {
+          path: '/courses/:courseId/chapters',
+          name: 'Chapters',
+          component: () => import('../views/chapters/ChaptersList.vue'),
+          meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
+        },
+        {
+          path: '/courses/:courseId/chapters/create',
+          name: 'ChapterCreate',
+          component: () => import('../views/chapters/ChapterForm.vue'),
+          meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
+        },
+        {
+          path: '/courses/:courseId/chapters/:chapterId/edit',
+          name: 'ChapterEdit',
+          component: () => import('../views/chapters/ChapterForm.vue'),
+          meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] }
+        },
       ]
     },
     // 404 Not Found route - must be last
