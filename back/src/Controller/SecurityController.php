@@ -25,35 +25,42 @@ class SecurityController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
-    
+        // Get the rememberMe value from the request
+        $rememberMe = $data['rememberMe'] ?? false;
+
         try {
             $user = $userProvider->loadUserByIdentifier($username);
-    
+
             if (!$passwordHasher->isPasswordValid($user, $password)) {
                 throw new AuthenticationException('Invalid credentials.');
             }
-    
+
             $token = $jwtManager->create($user);
-    
+
             $response = new JsonResponse(['message' => 'Login successful']);
             
-            // In production, you might set a specific domain. In development, omit the domain.
-            if ($_ENV['APP_ENV'] === 'prod') {
-                $cookie = Cookie::create('BEARER', $token)
-                    ->withHttpOnly(true)
-                    ->withSecure(true)
-                    ->withSameSite(Cookie::SAMESITE_LAX)
-                    ->withPath('/')
-                    ->withDomain('.akrom.xyz');
-            } else {
-                $cookie = Cookie::create('BEARER', $token)
-                    ->withHttpOnly(true)
-                    ->withSameSite(Cookie::SAMESITE_LAX)
-                    ->withPath('/');
+            // Create base cookie
+            $cookieBuilder = Cookie::create('BEARER', $token)
+                ->withHttpOnly(true)
+                ->withSameSite(Cookie::SAMESITE_LAX)
+                ->withPath('/');
+            
+            // Set expiration based on rememberMe flag
+            if ($rememberMe) {
+                // Set expiration to 30 days in the future if rememberMe is true
+                $expirationDate = new \DateTime('+30 days');
+                $cookieBuilder = $cookieBuilder->withExpires($expirationDate);
             }
-    
-            $response->headers->setCookie($cookie);
-    
+            
+            // Add secure and domain settings for production
+            if ($_ENV['APP_ENV'] === 'prod') {
+                $cookieBuilder = $cookieBuilder
+                    ->withSecure(true)
+                    ->withDomain('.akrom.xyz');
+            }
+            
+            $response->headers->setCookie($cookieBuilder);
+
             return $response;
         } catch (AuthenticationException $e) {
             return new JsonResponse(['error' => $e->getMessage()], JsonResponse::HTTP_UNAUTHORIZED);

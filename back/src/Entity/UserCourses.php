@@ -22,16 +22,16 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             security: "is_granted('ROLE_USER')"
         ),
         new Get(
-            security: "is_granted('ROLE_USER') and object.userid == user"
+            security: "is_granted('ROLE_USER') and object.getUserid() == user"
         ),
         new Post(
             security: "is_granted('ROLE_USER')"
         ),
         new Put(
-            security: "is_granted('ROLE_ADMIN')"
+            security: "is_granted('ROLE_USER') and object.getUserid() == user"
         ),
         new Delete(
-            security: "is_granted('ROLE_USER') and object.userid == user"
+            security: "is_granted('ROLE_USER') and object.getUserid() == user"
         )
     ],
     normalizationContext: [
@@ -47,7 +47,7 @@ class UserCourses
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['course:read', 'user:read'])]
+    #[Groups(['course:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'userCourses')]
@@ -58,24 +58,24 @@ class UserCourses
 
     #[ORM\ManyToOne(inversedBy: 'userCourses')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['course:read', 'course:write', 'user:read'])]
+    #[Groups(['course:read', 'course:write'])]
     #[MaxDepth(1)]
     private ?Courses $courseid = null;
 
     #[ORM\Column(type: Types::ARRAY, nullable: true)]
-    #[Groups(['course:read', 'course:write', 'user:read'])]
+    #[Groups(['course:read', 'course:write'])]
     private array $completedChapters = [];
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['course:read', 'course:write', 'user:read'])]
+    #[Groups(['course:read', 'course:write'])]
     private ?int $completionPercentage = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['course:read', 'user:read'])]
+    #[Groups(['course:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['course:read', 'user:read'])]
+    #[Groups(['course:read'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function getId(): ?int

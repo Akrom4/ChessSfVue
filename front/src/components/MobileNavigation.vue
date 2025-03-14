@@ -1,18 +1,9 @@
 <!-- MobileNavigation.vue -->
 <template>
-    <Disclosure as="nav" class="bg-nav-mobile">
+    <Disclosure as="nav" class="bg-nav-mobile fixed top-0 left-0 right-0 z-40">
         <template #default="{ open }">
             <div class="flex items-center justify-between h-16 px-4">
-                <!-- Logo -->
-                <div class="flex justify-center items-center">
-                    <img src="/images/logo/logo.png" alt="Echecs Plus" class="h-12 w-auto" />
-                </div>
-                <!-- User Profile Centered in Top Bar -->
-                <div class="flex justify-center items-center">
-                    <UserIcon class="h-8 w-8 text-custom-yellow" aria-hidden="true" />
-                    <span class="ml-2 text-white">{{ userName }}</span>
-                </div>
-                <!-- Mobile Menu Toggle Button -->
+                <!-- Mobile Menu Toggle Button (Left) -->
                 <DisclosureButton
                     class="p-2 rounded-md text-white bg-nav-mobile-button focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                     <span class="sr-only">Open mobile menu</span>
@@ -23,6 +14,49 @@
                         <Bars3Icon class="h-6 w-6" />
                     </template>
                 </DisclosureButton>
+
+                <!-- Logo (Center) -->
+                <div class="flex justify-center items-center">
+                    <img src="/images/logo/logo.png" alt="Echecs Plus" class="h-12 w-auto" />
+                </div>
+
+                <!-- User Profile (Right) -->
+                <div class="relative">
+                    <button @click="toggleUserMenu"
+                        class="flex items-center justify-center py-2 px-3 rounded-md focus:outline-none">
+                        <UserIcon class="h-8 w-8 text-custom-yellow" aria-hidden="true" />
+                        <span class="ml-2 text-white">{{ userName }}</span>
+                        <ChevronUpIcon v-if="isUserMenuOpen" class="ml-1 h-5 w-5 text-custom-yellow"
+                            aria-hidden="true" />
+                        <ChevronDownIcon v-else class="ml-1 h-5 w-5 text-custom-yellow" aria-hidden="true" />
+                    </button>
+
+                    <!-- User dropdown menu -->
+                    <div v-if="isUserMenuOpen && userName !== 'Guest'"
+                        class="absolute top-full right-0 w-48 mt-1 bg-nav-hover shadow-lg rounded-md overflow-hidden z-50">
+                        <!-- Profile option -->
+                        <router-link to="/profile"
+                            class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-white hover:bg-nav-mobile-button"
+                            @click="isUserMenuOpen = false">
+                            <UserCircleIcon class="h-5 w-5 text-custom-yellow" aria-hidden="true" />
+                            Profil
+                        </router-link>
+                        <!-- Settings option -->
+                        <router-link to="/settings"
+                            class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-white hover:bg-nav-mobile-button"
+                            @click="isUserMenuOpen = false">
+                            <CogIcon class="h-5 w-5 text-custom-yellow" aria-hidden="true" />
+                            Paramètres
+                        </router-link>
+                        <!-- Logout option -->
+                        <router-link to="/logout"
+                            class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-red-400 hover:bg-nav-mobile-button hover:text-red-300"
+                            @click="isUserMenuOpen = false">
+                            <LogOutIcon class="h-5 w-5" aria-hidden="true" />
+                            Déconnexion
+                        </router-link>
+                    </div>
+                </div>
             </div>
             <!-- Mobile Menu Panel -->
             <DisclosurePanel class="bg-nav-mobile">
@@ -64,9 +98,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ChevronRightIcon, Bars3Icon, XMarkIcon, UserIcon } from '@heroicons/vue/20/solid'
+import {
+    ChevronRightIcon,
+    Bars3Icon,
+    XMarkIcon,
+    UserIcon,
+    ChevronUpIcon,
+    ChevronDownIcon
+} from '@heroicons/vue/20/solid'
+import {
+    ArrowRightOnRectangleIcon as LogOutIcon,
+    UserCircleIcon,
+    CogIcon
+} from '@heroicons/vue/24/outline'
 import { navigation } from '@/data/navigation'
 
 const props = defineProps<{
@@ -78,4 +124,27 @@ const openDisclosureIndex = ref<number | null>(null)
 function toggleDisclosure(index: number) {
     openDisclosureIndex.value = openDisclosureIndex.value === index ? null : index
 }
+
+// User menu dropdown state
+const isUserMenuOpen = ref(false)
+function toggleUserMenu() {
+    isUserMenuOpen.value = !isUserMenuOpen.value
+}
+
+// Close menu when clicking outside
+function handleClickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement
+    if (!target.closest('.relative')) {
+        isUserMenuOpen.value = false
+    }
+}
+
+// Setup click outside listener
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+})
 </script>

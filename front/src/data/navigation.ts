@@ -20,13 +20,9 @@ export const navigation: NavigationItem[] = [
   { name: 'Accueil', href: '/', icon: HomeIcon, current: false },
   {
     name: 'Leçons',
+    href: '/lessons',
     icon: BookOpenIcon,
     current: false,
-    children: [
-      { name: 'Ouvertures', href: '#' },
-      { name: 'Stratégie', href: '#' },
-      { name: 'Finales', href: '#' },
-    ],
   },
   {
     name: 'Tactique',
