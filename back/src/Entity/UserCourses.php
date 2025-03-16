@@ -9,8 +9,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserCoursesRepository;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
@@ -42,6 +44,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         'groups' => ['course:write']
     ]
 )]
+#[ApiFilter(SearchFilter::class, properties: ['userid' => 'exact'])]
 class UserCourses
 {
     #[ORM\Id]

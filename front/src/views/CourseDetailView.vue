@@ -96,7 +96,8 @@
                         <PlusIcon v-else class="h-4 w-4" />
                         <span>{{ isFollowing ? 'Suivi' : 'Suivre' }}</span>
                     </button>
-                    <router-link v-if="isFollowing" to="/my-learning"
+
+                    <router-link v-if="isFollowing" to="/my-lessons"
                         class="flex-1 flex justify-center items-center gap-1 text-sm py-2 text-gray-700 hover:bg-gray-50 rounded-md">
                         <ArrowTopRightOnSquareIcon class="h-4 w-4" />
                         <span>Accéder à l'espace d'apprentissage</span>
@@ -176,7 +177,8 @@ import {
     UserIcon,
     AcademicCapIcon,
     ArrowTopRightOnSquareIcon,
-    InformationCircleIcon
+    InformationCircleIcon,
+    BookOpenIcon
 } from '@heroicons/vue/24/outline'
 
 const route = useRoute()

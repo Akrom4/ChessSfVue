@@ -47,6 +47,18 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'lessons/:id/chapters',
+          name: 'Chapters',
+          component: () => import('../views/ChaptersView.vue'),
+          meta: { requiresAuth: true, requiresFollowing: true }
+        },
+        {
+          path: 'my-lessons',
+          name: 'MyLessons',
+          component: () => import('../views/MyLessonsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'logout',
           name: 'Logout',
           component: LogoutView,
@@ -124,17 +136,13 @@ router.beforeEach(async (to, from, next) => {
     return
   }
   
-  // Check for role-based access if needed in the future
-  // if (to.meta.roles && Array.isArray(to.meta.roles) && to.meta.roles.length > 0) {
-  //   const hasRequiredRole = to.meta.roles.some(role => user.value?.roles.includes(role))
-  //   
-  //   if (!hasRequiredRole) {
-  //     console.log('User does not have required role, redirecting to home')
-  //     next({ name: 'home' })
-  //     return
-  //   }
-  // }
-
+  // Special check for routes that require following a course
+  if (to.meta.requiresFollowing) {
+    // For our purposes, we'll let the component handle this check and redirect
+    // since we need to fetch user courses data from the API
+    console.log('Route requires following a course, component will verify')
+  }
+  
   // Check if the authenticated user has access to this route
   if (to.meta.requiresAuth === false && to.name !== 'NotFound') {
     console.log('Authenticated user trying to access non-auth route, redirecting to home')

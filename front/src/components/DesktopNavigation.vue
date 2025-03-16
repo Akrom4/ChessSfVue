@@ -11,12 +11,18 @@
                     <ul role="list" class="space-y-1 w-full">
                         <li v-for="(item, index) in navigation" :key="item.name" class="w-full">
                             <template v-if="!item.children">
-                                <a :href="item.href"
+                                <router-link v-if="item.href" :to="item.href"
                                     class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold hover:bg-nav-hover text-white">
                                     <component :is="item.icon" class="h-6 w-6 shrink-0 text-custom-yellow"
                                         aria-hidden="true" />
                                     {{ item.name }}
-                                </a>
+                                </router-link>
+                                <div v-else
+                                    class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-white opacity-60">
+                                    <component :is="item.icon" class="h-6 w-6 shrink-0 text-custom-yellow"
+                                        aria-hidden="true" />
+                                    {{ item.name }}
+                                </div>
                             </template>
                             <template v-else>
                                 <div class="w-full">
@@ -31,10 +37,10 @@
                                     </button>
                                     <ul v-show="openDisclosureIndex === index" class="mt-1 px-2 w-full">
                                         <li v-for="subItem in item.children" :key="subItem.name" class="w-full">
-                                            <a :href="subItem.href"
+                                            <router-link :to="subItem.href"
                                                 class="block rounded-md py-2 pl-9 pr-2 text-sm/6 hover:bg-nav-hover text-white truncate">
                                                 {{ subItem.name }}
-                                            </a>
+                                            </router-link>
                                         </li>
                                     </ul>
                                 </div>
@@ -42,11 +48,11 @@
                         </li>
                         <!-- Admin Panel Link for role_admin -->
                         <li v-if="userRole === 'role_admin'" class="w-full">
-                            <a href="/admin"
+                            <router-link to="/admin"
                                 class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold hover:bg-nav-hover text-white">
                                 <Cog6ToothIcon class="h-6 w-6 shrink-0 text-custom-yellow" aria-hidden="true" />
                                 <span class="truncate">Administration</span>
-                            </a>
+                            </router-link>
                         </li>
                     </ul>
                 </li>

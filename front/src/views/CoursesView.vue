@@ -182,15 +182,18 @@
 
                 <!-- Action buttons -->
                 <div class="mt-4 flex border-t border-gray-200 pt-4">
-                    <button @click="toggleFollowCourse(course)"
-                        class="flex-1 flex justify-center items-center gap-1 text-sm py-2 rounded-md" :class="isFollowingCourse(course)
-                            ? 'text-green-600 hover:bg-green-50'
-                            : 'text-blue-600 hover:bg-blue-50'">
-                        <CheckIcon v-if="isFollowingCourse(course)" class="h-4 w-4" />
-                        <PlusIcon v-else class="h-4 w-4" />
-                        <span>{{ isFollowingCourse(course) ? 'Suivi' : 'Suivre' }}</span>
+                    <button v-if="isFollowingCourse(course)"
+                        class="flex-1 flex justify-center items-center gap-1 text-sm py-2 rounded-md text-green-600 bg-green-50 cursor-default opacity-80"
+                        disabled>
+                        <CheckIcon class="h-4 w-4" />
+                        <span>Suivi</span>
                     </button>
-                    <router-link v-if="isFollowingCourse(course)" to="/my-learning"
+                    <button v-else @click="followCourse(course)"
+                        class="flex-1 flex justify-center items-center gap-1 text-sm py-2 rounded-md text-blue-600 hover:bg-blue-50">
+                        <PlusIcon class="h-4 w-4" />
+                        <span>Suivre</span>
+                    </button>
+                    <router-link v-if="isFollowingCourse(course)" to="/my-lessons"
                         class="flex-1 flex justify-center items-center gap-1 text-sm py-2 text-gray-700 hover:bg-gray-50 rounded-md">
                         <ArrowTopRightOnSquareIcon class="h-4 w-4" />
                         <span>Apprendre</span>
@@ -207,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import coursesService from '../services/courses.service'
 import type { Course, UserCourse } from '../services/courses.service'
@@ -387,6 +390,57 @@ const toggleFollowCourse = async (course: Course) => {
     }
 }
 
+// Follow a course (only handles following, not unfollowing)
+const followCourse = async (course: Course) => {
+    // Skip if already following
+    if (isFollowingCourse(course)) {
+        return;
+    }
+
+    // Set loading state for this specific action
+    const actionLoading = ref(true);
+
+    try {
+        console.log(`Attempting to follow course: ${course.title} (ID: ${course.id})`);
+
+        const newUserCourse = await coursesService.addCourseToUser(course.id);
+        console.log('Course followed successfully:', newUserCourse);
+
+        // Update local state
+        userCourses.value.push(newUserCourse);
+    } catch (err: any) {
+        // Detailed error handling
+        let errorMessage = 'Une erreur est survenue lors de l\'ajout du cours.';
+
+        if (err.response) {
+            if (err.response.status === 500) {
+                errorMessage = 'Erreur serveur. Veuillez contacter l\'administrateur.';
+                console.error('Server error details:', err.response.data);
+            } else if (err.response.status === 415) {
+                errorMessage = 'Erreur de format de données. Veuillez réessayer.';
+            } else if (err.response.status === 403) {
+                errorMessage = 'Vous n\'avez pas la permission de suivre ce cours.';
+            } else if (err.response.data?.error) {
+                errorMessage = err.response.data.error;
+            } else if (err.response.data?.['hydra:description']) {
+                errorMessage = err.response.data['hydra:description'];
+            }
+        } else if (err.message) {
+            errorMessage = err.message;
+        }
+
+        console.error('Error following course:', err);
+        error.value = errorMessage;
+
+        // Auto clear error after some time
+        setTimeout(() => {
+            error.value = null;
+        }, 5000);
+    } finally {
+        actionLoading.value = false;
+    }
+}
+
 // Fetch data
 const fetchData = async () => {
     loading.value = true
@@ -414,6 +468,12 @@ const fetchData = async () => {
         loading.value = false
     }
 }
+
+// Fetch data when the component is activated (coming back to this route)
+onActivated(() => {
+    console.log('CoursesView activated - refreshing data')
+    fetchData()
+})
 
 onMounted(fetchData)
 </script>
