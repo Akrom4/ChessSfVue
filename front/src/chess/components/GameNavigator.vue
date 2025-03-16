@@ -1,17 +1,23 @@
 <template>
-  <div class="flex justify-between md:justify-center items-stretch mt-4">
-    <button @click="moveToStart" title="Start" class="h-full bg-light-pgn hover:bg-green-500">
-      <ChevronDoubleLeftIcon class="w-10 h-10 text-dark-pgn" />
-    </button>
-    <button @click="moveToPrev" title="Prev" class="h-full bg-light-pgn hover:bg-green-500">
-      <ChevronLeftIcon class="w-10 h-10 text-dark-pgn" />
-    </button>
-    <button @click="moveToNext" title="Next" class="h-full bg-light-pgn hover:bg-green-500">
-      <ChevronRightIcon class="w-10 h-10 text-dark-pgn" />
-    </button>
-    <button @click="moveToEnd" title="End" class="h-full bg-light-pgn hover:bg-green-500">
-      <ChevronDoubleRightIcon class="w-10 h-10 text-dark-pgn" />
-    </button>
+  <div class="my-4">
+    <div class="flex items-center justify-center gap-2">
+      <button @click="moveToStart" title="First position"
+        class="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--color-nav-start)] text-[var(--color-custom-yellow)] shadow-md hover:bg-[var(--color-nav-hover)] active:bg-[var(--color-nav-end)] hover:-translate-y-0.5 active:translate-y-0 hover:shadow-lg active:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30">
+        <ChevronDoubleLeftIcon class="w-5 h-5" />
+      </button>
+      <button @click="moveToPrev" title="Previous move"
+        class="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--color-nav-start)] text-[var(--color-custom-yellow)] shadow-md hover:bg-[var(--color-nav-hover)] active:bg-[var(--color-nav-end)] hover:-translate-y-0.5 active:translate-y-0 hover:shadow-lg active:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30">
+        <ChevronLeftIcon class="w-5 h-5" />
+      </button>
+      <button @click="moveToNext" title="Next move"
+        class="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--color-nav-start)] text-[var(--color-custom-yellow)] shadow-md hover:bg-[var(--color-nav-hover)] active:bg-[var(--color-nav-end)] hover:-translate-y-0.5 active:translate-y-0 hover:shadow-lg active:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30">
+        <ChevronRightIcon class="w-5 h-5" />
+      </button>
+      <button @click="moveToEnd" title="Last position"
+        class="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--color-nav-start)] text-[var(--color-custom-yellow)] shadow-md hover:bg-[var(--color-nav-hover)] active:bg-[var(--color-nav-end)] hover:-translate-y-0.5 active:translate-y-0 hover:shadow-lg active:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30">
+        <ChevronDoubleRightIcon class="w-5 h-5" />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -91,5 +97,3 @@ export default defineComponent({
   },
 });
 </script>
-
-
