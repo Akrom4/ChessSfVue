@@ -22,9 +22,4 @@ export default defineConfig({
   build: {
     assetsInlineLimit: 0, // Disable inlining
   },
-  server: {
-    host: true, // Listen on all network interfaces
-    port: 3000,      // Default port for Vite
-    allowedHosts: true
-  }
 })

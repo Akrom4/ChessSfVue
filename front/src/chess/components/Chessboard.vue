@@ -1,24 +1,10 @@
 <template>
-  <div 
-    ref="chessboardRef" 
-    id="chessboard"
-    class="overflow-hidden select-none touch-action-none"
-    @mousemove="movePiece" 
-    @mousedown="grabPiece" 
-    @mouseup="dropPiece"
-    @touchstart="handleTouch($event); grabPiece($event)" 
-    @touchmove="handleTouch($event); movePiece($event)"
-    @touchend="handleTouch($event); dropPiece($event)" 
-    @contextmenu.prevent
-  >
-    <Square 
-      v-for="(square, index) in board" 
-      :key="index" 
-      :isWhite="square.isWhite" 
-      :piece="square.piece"
-      :highlight="square.highlight" 
-      :drag="square.drag" 
-    />
+  <div ref="chessboardRef" id="chessboard" class="overflow-hidden select-none touch-action-none" @mousemove="movePiece"
+    @mousedown="grabPiece" @mouseup="dropPiece" @touchstart="handleTouch($event); grabPiece($event)"
+    @touchmove="handleTouch($event); movePiece($event)" @touchend="handleTouch($event); dropPiece($event)"
+    @contextmenu.prevent>
+    <Square v-for="(square, index) in board" :key="index" :isWhite="square.isWhite" :piece="square.piece"
+      :highlight="square.highlight" :drag="square.drag" />
     <div class="chessboard-nav">
       <!-- Navigation buttons or additional content can go here -->
     </div>
@@ -241,7 +227,7 @@ export default defineComponent({
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
   outline: none;
-  background-color: rgba(228, 2, 2, 1);
+  background-color: #94242E;
   touch-action: none;
   overflow: hidden;
 }
@@ -274,7 +260,7 @@ export default defineComponent({
   #chessboard {
     height: 80vmin;
     width: 80vmin;
-    grid-template-columns: repeat(8,  1fr);
+    grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
   }
 
