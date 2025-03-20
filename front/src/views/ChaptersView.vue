@@ -125,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import coursesService from '../services/courses.service';
 import type { Course, UserCourse, Chapter } from '../services/courses.service';
@@ -139,12 +139,18 @@ const { user } = useAuth();
 const { getCourseImageUrl } = useAssets();
 
 // State
-const courseId = computed(() => Number(route.params.id));
+const courseId = computed(() => {
+    const id = route.params.id;
+    if (!id) return NaN;
+    const parsedId = Number(id);
+    return isNaN(parsedId) ? NaN : parsedId;
+});
 const course = ref<Course | null>(null);
 const chapters = ref<Chapter[]>([]);
 const userCourse = ref<UserCourse | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
+const isRedirecting = ref(false);
 
 // Check if a chapter is completed
 const isChapterCompleted = (chapter: Chapter) => {
@@ -156,12 +162,25 @@ const isChapterCompleted = (chapter: Chapter) => {
 
 // Start a chapter (navigate to chapter content/learning view)
 const startChapter = (chapter: Chapter) => {
-    // Navigate to chapter content view (this will be implemented later)
-    router.push(`/lessons/${courseId.value}/chapter/${chapter.id}`);
+    router.push({
+        name: 'ChapterView',
+        params: {
+            courseId: courseId.value,
+            chapterId: chapter.id
+        }
+    });
 };
 
 // Fetch course and chapter data
 const fetchData = async () => {
+    // Skip fetching if we don't have a valid course ID
+    if (!courseId.value || isNaN(courseId.value) || isRedirecting.value) {
+        console.error('Invalid course ID or redirect in progress, cannot fetch course data:', route.params.id);
+        error.value = 'ID de cours invalide';
+        loading.value = false;
+        return;
+    }
+
     loading.value = true;
     error.value = null;
 
@@ -190,18 +209,44 @@ const fetchData = async () => {
         } else {
             // User is not following this course, redirect to my-lessons
             error.value = "Vous devez suivre ce cours pour accéder à ses chapitres.";
+            isRedirecting.value = true; // Mark that we're redirecting
             setTimeout(() => {
                 router.push('/my-lessons');
             }, 2000);
             return;
         }
     } catch (err: any) {
-        error.value = err.message || 'Une erreur est survenue lors du chargement du cours.';
-        console.error('Error fetching course data:', err);
+        // Only set error if we're not redirecting
+        if (!isRedirecting.value) {
+            error.value = err.message || 'Une erreur est survenue lors du chargement du cours.';
+            console.error('Error fetching course data:', err);
+        }
     } finally {
         loading.value = false;
     }
 };
 
-onMounted(fetchData);
+// Reset redirect flag when component is unmounted
+onMounted(() => {
+    isRedirecting.value = false;
+    fetchData();
+});
+
+// Also reset the redirect flag when route changes
+watch(() => route.params.id, (newId, oldId) => {
+    if (newId !== oldId) {
+        isRedirecting.value = false;
+
+        // Only fetch if we have a valid ID - skip when navigating away (newId is undefined)
+        if (newId && !isNaN(Number(newId))) {
+            fetchData();
+        } else {
+            // Reset state when navigating away
+            course.value = null;
+            chapters.value = [];
+            userCourse.value = null;
+            error.value = null;
+        }
+    }
+});
 </script>

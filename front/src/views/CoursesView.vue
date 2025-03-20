@@ -138,11 +138,27 @@
 
                 <!-- Indicators (difficulty) -->
                 <template #indicators>
-                    <!-- Hardcoded difficulty indicators -->
-                    <span class="w-2.5 h-2.5 rounded-full bg-green-500" title="Facile"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500" title="Intermédiaire"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-red-500" title="Difficile"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-black" title="Expert"></span>
+                    <template v-if="course.difficulty">
+                        <!-- Easy -->
+                        <span v-if="course.difficulty === 'easy'" class="w-2.5 h-2.5 rounded-full bg-green-500"
+                            title="Facile"></span>
+                        <!-- Intermediate -->
+                        <span v-else-if="course.difficulty === 'intermediate'"
+                            class="w-2.5 h-2.5 rounded-full bg-blue-500" title="Intermédiaire"></span>
+                        <!-- Advanced -->
+                        <span v-else-if="course.difficulty === 'advanced'" class="w-2.5 h-2.5 rounded-full bg-red-500"
+                            title="Difficile"></span>
+                        <!-- Expert -->
+                        <span v-else-if="course.difficulty === 'expert'" class="w-2.5 h-2.5 rounded-full bg-black"
+                            title="Expert"></span>
+                    </template>
+                    <!-- If no difficulty is set, show all indicators -->
+                    <template v-else>
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-500" title="Facile"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500" title="Intermédiaire"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-500" title="Difficile"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-black" title="Expert"></span>
+                    </template>
                 </template>
 
                 <!-- Title -->

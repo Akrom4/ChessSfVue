@@ -141,7 +141,7 @@
         <!-- Color Side -->
         <div class="space-y-1">
           <label for="colorside" class="text-sm font-medium text-surface-700 dark:text-surface-300">Côté des pièces</label>
-          <Dropdown
+          <Select
             id="colorside"
             v-model="course.colorside"
             :options="chessSides"
@@ -163,7 +163,35 @@
                 {{ slotProps.option.label }}
               </div>
             </template>
-          </Dropdown>
+          </Select>
+        </div>
+        
+        <!-- Difficulty Level -->
+        <div class="space-y-1">
+          <label for="difficulty" class="text-sm font-medium text-surface-700 dark:text-surface-300">Niveau de difficulté</label>
+          <Select
+            id="difficulty"
+            v-model="course.difficulty"
+            :options="difficultyOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Sélectionner un niveau de difficulté"
+            class="w-full"
+          >
+            <template #value="slotProps">
+              <div class="flex items-center" v-if="slotProps.value">
+                <i class="pi pi-chart-line mr-2"></i>
+                {{ difficultyOptions.find(opt => opt.value === slotProps.value)?.label || slotProps.value }}
+              </div>
+              <span v-else>Sélectionner un niveau de difficulté</span>
+            </template>
+            <template #option="slotProps">
+              <div class="flex items-center">
+                <i class="pi pi-chart-line mr-2"></i>
+                {{ slotProps.option.label }}
+              </div>
+            </template>
+          </Select>
         </div>
         
         <!-- Image Upload -->
@@ -243,6 +271,11 @@
               <span class="mr-2">Côté:</span>
               <i :class="`pi pi-circle-fill mr-1 ${selectedCourse.colorside === 'W' ? 'text-white border border-gray-400 rounded-full' : 'text-black'}`"></i>
               {{ selectedCourse.colorside === 'W' ? 'Blanc' : 'Noir' }}
+            </p>
+            <p v-if="selectedCourse?.difficulty" class="text-sm text-surface-600 dark:text-surface-400 flex items-center mt-1">
+              <span class="mr-2">Difficulté:</span>
+              <i class="pi pi-chart-line mr-1"></i>
+              {{ difficultyOptions.find(opt => opt.value === selectedCourse?.difficulty)?.label || selectedCourse?.difficulty }}
             </p>
           </div>
           
@@ -324,7 +357,7 @@ import Textarea from 'primevue/textarea';
 import FileUpload from 'primevue/fileupload';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
-import Dropdown from 'primevue/dropdown';
+import Select from 'primevue/select';
 
 const toast = useToast();
 const router = useRouter();
@@ -345,6 +378,7 @@ const course = ref<Course>({
   description: '',
   author: '',
   colorside: '',
+  difficulty: null,
   image: ''
 });
 const selectedCourse = ref<Course | null>(null);
@@ -364,6 +398,14 @@ const allCourses = ref<Course[]>([]);
 const chessSides = [
   { label: 'Blanc', value: 'W' },
   { label: 'Noir', value: 'B' }
+];
+
+// Difficulty levels
+const difficultyOptions = [
+  { label: 'Facile', value: 'easy' },
+  { label: 'Intermédiaire', value: 'intermediate' },
+  { label: 'Avancé', value: 'advanced' },
+  { label: 'Expert', value: 'expert' }
 ];
 
 // Lifecycle hooks
@@ -459,6 +501,7 @@ const openNewCourseDialog = (): void => {
     description: '',
     author: '',
     colorside: '',
+    difficulty: null,
     image: ''
   };
   submitted.value = false;

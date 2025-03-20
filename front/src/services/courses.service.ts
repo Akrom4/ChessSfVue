@@ -12,6 +12,7 @@ export interface Course {
   userCourses: UserCourse[]
   author: string | null
   colorside: string | null
+  difficulty: 'easy' | 'intermediate' | 'advanced' | 'expert' | null
 }
 
 export interface Chapter {
@@ -124,10 +125,22 @@ class CoursesService {
     try {
       // Use our new custom endpoint instead of /courses/${courseId}/chapters
       const response = await api.get(`/courses/${courseId}/my-chapters`);
+      console.log('Response data chapters :', response.data);
       return response.data.chapters || []; // The chapters are in the 'chapters' property
     } catch (error) {
       console.error(`Error fetching chapters for course ${courseId}:`, error);
       return [];
+    }
+  }
+
+  async getChapter(courseId: number, chapterId: number) {
+    try {
+      // Direct API endpoint for a single chapter
+      const response = await api.get(`/courses/${courseId}/chapters/${chapterId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching chapter ${chapterId} for course ${courseId}:`, error);
+      throw error;
     }
   }
 
@@ -142,4 +155,4 @@ class CoursesService {
   }
 }
 
-export default new CoursesService() 
+export default new CoursesService()

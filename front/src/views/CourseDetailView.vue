@@ -33,18 +33,35 @@
 
                 <!-- Indicators (difficulty) -->
                 <template #indicators>
-                    <!-- Hardcoded difficulty indicators -->
-                    <span class="w-2.5 h-2.5 rounded-full bg-green-500" title="Facile"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500" title="Intermédiaire"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-red-500" title="Difficile"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-black" title="Expert"></span>
+                    <template v-if="course.difficulty">
+                        <!-- Easy -->
+                        <span v-if="course.difficulty === 'easy'" class="w-2.5 h-2.5 rounded-full bg-green-500"
+                            title="Facile"></span>
+                        <!-- Intermediate -->
+                        <span v-else-if="course.difficulty === 'intermediate'"
+                            class="w-2.5 h-2.5 rounded-full bg-blue-500" title="Intermédiaire"></span>
+                        <!-- Advanced -->
+                        <span v-else-if="course.difficulty === 'advanced'" class="w-2.5 h-2.5 rounded-full bg-red-500"
+                            title="Difficile"></span>
+                        <!-- Expert -->
+                        <span v-else-if="course.difficulty === 'expert'" class="w-2.5 h-2.5 rounded-full bg-black"
+                            title="Expert"></span>
+                    </template>
+                    <!-- If no difficulty is set, show all indicators -->
+                    <template v-else>
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-500" title="Facile"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500" title="Intermédiaire"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-500" title="Difficile"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-black" title="Expert"></span>
+                    </template>
                 </template>
 
                 <!-- Title -->
                 <template #title>
                     <h1 class="text-xl font-semibold text-gray-800">{{ course.title }}</h1>
                     <div class="text-sm text-gray-500 mt-1">
-                        {{ chapters.length }} chapitre{{ chapters.length !== 1 ? 's' : '' }}
+                        {{ course?.chapters?.length || 0 }} chapitre{{ (course?.chapters?.length || 0) !== 1 ? 's' : ''
+                        }}
                     </div>
 
                     <div class="text-xs text-gray-500">
@@ -80,9 +97,11 @@
 
                     <div class="text-xs text-gray-500 flex items-center">
                         <DocumentTextIcon class="h-4 w-4 mr-1" />
-                        <span>{{ chapters.length }} chapitre{{ chapters.length !== 1 ? 's' : '' }} disponible{{
-                            chapters.length !== 1 ?
-                                's' : '' }}</span>
+                        <span>{{ course?.chapters?.length || 0 }} chapitre{{ (course?.chapters?.length || 0) !== 1 ? 's'
+                            : '' }}
+                            disponible{{
+                                (course?.chapters?.length || 0) !== 1 ?
+                                    's' : '' }}</span>
                     </div>
                 </div>
 
@@ -120,9 +139,10 @@
                             <DocumentTextIcon class="h-5 w-5 text-[var(--color-nav-start)] mt-0.5 mr-3" />
                             <div>
                                 <h3 class="font-medium text-gray-800">Structure du cours</h3>
-                                <p class="text-gray-600">Ce cours contient {{ chapters.length }} chapitre{{
-                                    chapters.length !== 1 ?
-                                        's' : '' }}. Suivez ce cours pour y accéder dans votre espace d'apprentissage
+                                <p class="text-gray-600">Ce cours contient {{ course?.chapters?.length || 0 }}
+                                    chapitre{{
+                                        (course?.chapters?.length || 0) !== 1 ?
+                                            's' : '' }}. Suivez ce cours pour y accéder dans votre espace d'apprentissage
                                     personnel.</p>
                             </div>
                         </div>
@@ -161,7 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import coursesService from '../services/courses.service'
 import type { Course, UserCourse, Chapter } from '../services/courses.service'
@@ -186,9 +206,13 @@ const router = useRouter()
 const { user } = useAuth()
 const { getCourseImageUrl } = useAssets()
 
-const courseId = computed(() => parseInt(route.params.id as string))
+const courseId = computed(() => {
+    const id = route.params.id;
+    if (!id) return NaN;
+    const parsedId = parseInt(id as string);
+    return isNaN(parsedId) ? NaN : parsedId;
+})
 const course = ref<Course | null>(null)
-const chapters = ref<Chapter[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 const isFollowing = ref(false)
@@ -264,8 +288,30 @@ const toggleFollowCourse = async () => {
     }
 }
 
+// Watch for route param changes to refresh data
+watch(() => route.params.id, (newId, oldId) => {
+    if (newId !== oldId) {
+        console.log(`CourseDetailView: Route param changed from ${oldId} to ${newId} - refreshing data`);
+        // Make sure we have a valid ID before fetching
+        if (newId && !isNaN(Number(newId))) {
+            fetchCourseData();
+        } else {
+            console.error('Invalid course ID in route params:', newId);
+            error.value = 'ID de cours invalide';
+        }
+    }
+});
+
 // Fetch course data
 const fetchCourseData = async () => {
+    // Skip fetching if we don't have a valid course ID
+    if (!courseId.value || isNaN(courseId.value)) {
+        console.error('Invalid course ID, cannot fetch course data:', route.params.id);
+        error.value = 'ID de cours invalide';
+        loading.value = false;
+        return;
+    }
+
     loading.value = true
     error.value = null
 
@@ -285,10 +331,6 @@ const fetchCourseData = async () => {
             isFollowing.value = true
             userCourseId.value = userCourse.id
         }
-
-        // Get course chapters
-        const chaptersData = await coursesService.getCourseChapters(courseId.value)
-        chapters.value = chaptersData
     } catch (err: any) {
         error.value = err.message || 'Une erreur est survenue lors du chargement du cours.'
         console.error('Error fetching course data:', err)

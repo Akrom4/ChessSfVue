@@ -140,6 +140,25 @@
                                     {{ Math.round(userCourse.completionPercentage || 0) }}%
                                 </span>
                             </div>
+
+                            <!-- Difficulty indicator -->
+                            <div class="mt-2 mb-1">
+                                <template v-if="userCourse.courseid.difficulty">
+                                    <!-- Easy -->
+                                    <span v-if="userCourse.courseid.difficulty === 'easy'"
+                                        class="w-2.5 h-2.5 rounded-full bg-green-500 block" title="Facile"></span>
+                                    <!-- Intermediate -->
+                                    <span v-else-if="userCourse.courseid.difficulty === 'intermediate'"
+                                        class="w-2.5 h-2.5 rounded-full bg-blue-500 block" title="Intermédiaire"></span>
+                                    <!-- Advanced -->
+                                    <span v-else-if="userCourse.courseid.difficulty === 'advanced'"
+                                        class="w-2.5 h-2.5 rounded-full bg-red-500 block" title="Difficile"></span>
+                                    <!-- Expert -->
+                                    <span v-else-if="userCourse.courseid.difficulty === 'expert'"
+                                        class="w-2.5 h-2.5 rounded-full bg-black block" title="Expert"></span>
+                                </template>
+                            </div>
+
                             <button
                                 class="mt-1 text-xs text-gray-500 hover:text-red-500 flex items-center transition-colors"
                                 title="Ne plus suivre" @click.prevent="removeCourse(userCourse)">
@@ -199,7 +218,7 @@
 
                     <!-- Action buttons -->
                     <div class="mt-4 grid grid-cols-3 gap-1 border-t border-gray-200 pt-4">
-                        <router-link :to="`/lessons/${userCourse.courseid.id}/chapters`"
+                        <router-link :to="`/my-lessons/${userCourse.courseid.id}/chapters`"
                             class="flex justify-center items-center gap-1 text-sm py-2 rounded-md text-[var(--color-nav-start)] hover:bg-[var(--color-light-pgn)]">
                             <DocumentTextIcon class="h-4 w-4" />
                             <span class="hidden sm:inline">Chapitres</span>
@@ -252,6 +271,29 @@
                                                 {{ Math.round(userCourse.completionPercentage || 0) }}%
                                             </span>
                                         </div>
+
+                                        <!-- Difficulty indicator -->
+                                        <div class="mt-2 mb-1">
+                                            <template v-if="userCourse.courseid.difficulty">
+                                                <!-- Easy -->
+                                                <span v-if="userCourse.courseid.difficulty === 'easy'"
+                                                    class="w-2.5 h-2.5 rounded-full bg-green-500 block"
+                                                    title="Facile"></span>
+                                                <!-- Intermediate -->
+                                                <span v-else-if="userCourse.courseid.difficulty === 'intermediate'"
+                                                    class="w-2.5 h-2.5 rounded-full bg-blue-500 block"
+                                                    title="Intermédiaire"></span>
+                                                <!-- Advanced -->
+                                                <span v-else-if="userCourse.courseid.difficulty === 'advanced'"
+                                                    class="w-2.5 h-2.5 rounded-full bg-red-500 block"
+                                                    title="Difficile"></span>
+                                                <!-- Expert -->
+                                                <span v-else-if="userCourse.courseid.difficulty === 'expert'"
+                                                    class="w-2.5 h-2.5 rounded-full bg-black block"
+                                                    title="Expert"></span>
+                                            </template>
+                                        </div>
+
                                         <button
                                             class="mt-1 text-xs text-gray-500 hover:text-red-500 flex items-center transition-colors"
                                             title="Ne plus suivre" @click.prevent="removeCourse(userCourse)">
@@ -280,7 +322,7 @@
 
                             <!-- Action buttons -->
                             <div class="flex space-x-2">
-                                <router-link :to="`/lessons/${userCourse.courseid.id}/chapters`"
+                                <router-link :to="`/my-lessons/${userCourse.courseid.id}/chapters`"
                                     class="flex justify-center items-center gap-1 px-4 py-2 text-sm rounded-md border border-[var(--color-nav-start)] text-[var(--color-nav-start)] hover:bg-[var(--color-light-pgn)]">
                                     <DocumentTextIcon class="h-4 w-4" />
                                     <span>Chapitres</span>

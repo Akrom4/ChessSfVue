@@ -6,17 +6,20 @@ export interface Course {
   title: string
   description?: string
   image?: string
+  imageFile?: File | null
+  imageUrl?: string
+  difficulty?: string | null
   createdat?: string
   updatedat?: string
   author?: string
   colorside?: string
-  imageFile?: File
   chapters?: any[]
   userCourses?: any[]
   
   // API Platform specific fields
   '@id'?: string
   '@type'?: string
+  [key: string]: any // For any additional properties that might be in the API response
 }
 
 export function useCourseService() {

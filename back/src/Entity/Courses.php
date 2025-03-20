@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use App\Enum\CourseDifficulty;
 use App\Repository\CoursesRepository;
 use ApiPlatform\Metadata\GetCollection;
 use Doctrine\Common\Collections\Collection;
@@ -94,6 +95,10 @@ class Courses
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['course:read', 'course:write'])]
     private ?string $colorside = null;
+
+    #[ORM\Column(type: 'string', enumType: CourseDifficulty::class, nullable: true)]
+    #[Groups(['course:read', 'course:write', 'user_course:read'])]
+    private ?CourseDifficulty $difficulty = null;
 
     public function __construct()
     {
@@ -265,6 +270,17 @@ class Courses
     {
         $this->colorside = $colorside;
 
+        return $this;
+    }
+
+    public function getDifficulty(): ?CourseDifficulty
+    {
+        return $this->difficulty;
+    }
+
+    public function setDifficulty(?CourseDifficulty $difficulty): self
+    {
+        $this->difficulty = $difficulty;
         return $this;
     }
 }

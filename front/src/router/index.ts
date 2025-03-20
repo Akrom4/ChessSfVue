@@ -47,9 +47,15 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
-          path: 'lessons/:id/chapters',
+          path: 'my-lessons/:id/chapters',
           name: 'Chapters',
           component: () => import('../views/ChaptersView.vue'),
+          meta: { requiresAuth: true, requiresFollowing: true }
+        },
+        {
+          path: 'my-lessons/:courseId/chapter/:chapterId',
+          name: 'ChapterView',
+          component: () => import('../views/ChessView.vue'),
           meta: { requiresAuth: true, requiresFollowing: true }
         },
         {

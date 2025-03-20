@@ -72,6 +72,12 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       console.warn('Authentication error detected, redirecting to login');
       
+      // Reset authentication state in memory
+      // Import would create circular dependency, so use window event
+      window.dispatchEvent(new CustomEvent('auth-state-change', { 
+        detail: { isAuthenticated: false }
+      }));
+      
       // Store the current path to redirect back after login
       const currentPath = router.currentRoute.value.fullPath;
       
