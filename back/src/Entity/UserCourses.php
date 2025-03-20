@@ -15,13 +15,15 @@ use App\Repository\UserCoursesRepository;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use App\Filter\UserCoursesFilter;
 
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: UserCoursesRepository::class)]
 #[ApiResource(
     operations: [
         new GetCollection(
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER')",
+            filters: ["user_courses.user_filter"]
         ),
         new Get(
             security: "is_granted('ROLE_USER') and object.getUserid() == user"
@@ -37,48 +39,49 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         )
     ],
     normalizationContext: [
-        'groups' => ['course:read'],
+        'groups' => ['user_course:read'],
         'enable_max_depth' => true
     ],
     denormalizationContext: [
-        'groups' => ['course:write']
+        'groups' => ['user_course:write']
     ]
 )]
-#[ApiFilter(SearchFilter::class, properties: ['userid' => 'exact'])]
+#[ApiFilter(SearchFilter::class, properties: ['userid' => 'exact', 'courseid' => 'exact'])]
+#[ApiFilter(UserCoursesFilter::class)]
 class UserCourses
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['course:read'])]
+    #[Groups(['user_course:read', 'course:read', 'user:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'userCourses')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['course:read', 'course:write'])]
-    #[MaxDepth(1)]
+    #[Groups(['user_course:read', 'user_course:write', 'course:read'])]
+    #[MaxDepth(2)]
     private ?User $userid = null;
 
     #[ORM\ManyToOne(inversedBy: 'userCourses')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['course:read', 'course:write'])]
-    #[MaxDepth(1)]
+    #[Groups(['user_course:read', 'user_course:write', 'user:read'])]
+    #[MaxDepth(2)]
     private ?Courses $courseid = null;
 
     #[ORM\Column(type: Types::ARRAY, nullable: true)]
-    #[Groups(['course:read', 'course:write'])]
+    #[Groups(['user_course:read', 'user_course:write', 'course:read', 'user:read'])]
     private array $completedChapters = [];
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['course:read', 'course:write'])]
+    #[Groups(['user_course:read', 'user_course:write', 'course:read', 'user:read'])]
     private ?int $completionPercentage = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['course:read'])]
+    #[Groups(['user_course:read', 'course:read', 'user:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['course:read'])]
+    #[Groups(['user_course:read', 'course:read', 'user:read'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function getId(): ?int

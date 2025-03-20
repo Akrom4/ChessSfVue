@@ -32,11 +32,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
-    #[Groups(['user:read', 'user:write', 'course:read'])]
+    #[Groups(['user:read', 'user:write', 'course:read', 'user_course:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 180, unique: true)]
-    #[Groups(['user:read', 'user:write', 'course:read'])]
+    #[Groups(['user:read', 'user:write', 'course:read', 'user_course:read'])]
     private ?string $username = null;
 
     #[ORM\Column(length: 255)]
@@ -64,7 +64,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(mappedBy: 'userid', targetEntity: UserCourses::class, orphanRemoval: true)]
     #[Groups(['user:read'])]
-    #[MaxDepth(1)]
+    #[MaxDepth(2)]
     private Collection $userCourses;
 
     public function __construct()

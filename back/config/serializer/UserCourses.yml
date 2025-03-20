@@ -1,0 +1,12 @@
+App\Entity\UserCourses:
+  attributes:
+    id:
+      groups: ['user_course:read', 'course:read']
+    courseid:
+      groups: ['user_course:read', 'course:read']
+    userid:
+      groups: ['user_course:read', 'course:read']
+    completedChapters:
+      groups: ['user_course:read', 'course:read']
+    completionPercentage:
+      groups: ['user_course:read', 'course:read'] 

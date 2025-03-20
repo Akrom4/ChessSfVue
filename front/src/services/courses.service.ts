@@ -122,11 +122,22 @@ class CoursesService {
 
   async getCourseChapters(courseId: number) {
     try {
-      const response = await api.get(`/courses/${courseId}/chapters`)
-      return response.data.member || []
+      // Use our new custom endpoint instead of /courses/${courseId}/chapters
+      const response = await api.get(`/courses/${courseId}/my-chapters`);
+      return response.data.chapters || []; // The chapters are in the 'chapters' property
     } catch (error) {
-      console.error(`Error fetching chapters for course ${courseId}:`, error)
-      return []
+      console.error(`Error fetching chapters for course ${courseId}:`, error);
+      return [];
+    }
+  }
+
+  async getFollowingStatus(courseId: number) {
+    try {
+      const response = await api.get(`/courses/${courseId}/following`);
+      return response.data; // Contains {following: true/false, userCourseId: number}
+    } catch (error) {
+      console.error(`Error checking course follow status:`, error);
+      return { following: false };
     }
   }
 }

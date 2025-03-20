@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(types: [], 
@@ -29,7 +30,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
     ],
     normalizationContext: [
-        'groups' => ['chapter:read']
+        'groups' => ['chapter:read'],
+        'enable_max_depth' => true
     ],
     denormalizationContext: [
         'groups' => ['chapter:write']
@@ -44,7 +46,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         )
     ],
     normalizationContext: [
-        'groups' => ['chapter:read']
+        'groups' => ['chapter:read'],
+        'enable_max_depth' => true
     ]
 )]
 #[Get(
@@ -60,7 +63,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         )
     ],
     normalizationContext: [
-        'groups' => ['chapter:read']
+        'groups' => ['chapter:read'],
+        'enable_max_depth' => true
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['id' => 'exact', 'title' => 'partial', 'course' => 'exact'])]
@@ -80,6 +84,7 @@ class Chapter
 
     #[ORM\ManyToOne(inversedBy: 'chapters')]
     #[Groups(['chapter:read', 'chapter:write'])]
+    #[MaxDepth(1)]
     private ?Courses $course = null;
 
     #[ORM\Column(nullable: true)]

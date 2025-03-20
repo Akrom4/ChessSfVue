@@ -1,0 +1,22 @@
+App\Entity\Courses:
+  attributes:
+    id:
+      groups: ['course:read', 'user_course:read']
+    userCourses:
+      groups: ['course:read']
+    title:
+      groups: ['course:read', 'user_course:read']
+    image:
+      groups: ['course:read', 'user_course:read']
+    description:
+      groups: ['course:read', 'user_course:read']
+    colorside:
+      groups: ['course:read', 'user_course:read']
+    author:
+      groups: ['course:read', 'user_course:read']
+    chapters:
+      groups: ['course:read', 'user_course:read']
+    createdat:
+      groups: ['course:read', 'user_course:read']
+    updatedat:
+      groups: ['course:read', 'user_course:read'] 

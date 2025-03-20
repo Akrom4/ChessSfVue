@@ -116,7 +116,7 @@ export function useAuth() {
     console.log('Logging out user')
     try {
       // Call the logout endpoint that clears the authentication cookie
-      await api.post('/api/logout')
+      await api.post('/logout')
       console.log('Logout API call successful')
     } catch (error) {
       console.error('Error during logout API call:', error)

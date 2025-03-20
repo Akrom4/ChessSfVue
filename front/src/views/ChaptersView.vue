@@ -170,20 +170,23 @@ const fetchData = async () => {
         const courseData = await coursesService.getCourse(courseId.value);
         course.value = courseData;
 
-        // Check if user is following this course
-        const userCourses = await coursesService.getUserCourses();
-        const foundUserCourse = userCourses.find((uc: UserCourse) =>
-            uc.courseid.id === courseId.value &&
-            uc.userid.id === user.value?.id
-        );
+        // Use our new endpoint to check if following
+        const followStatus = await coursesService.getFollowingStatus(courseId.value);
 
-        // Set user course or redirect if not following
-        if (foundUserCourse) {
-            userCourse.value = foundUserCourse;
-
-            // Get course chapters
+        if (followStatus.following) {
+            // Get chapters using our specialized endpoint
             const chaptersData = await coursesService.getCourseChapters(courseId.value);
             chapters.value = chaptersData;
+
+            // Get user course details
+            const userCourses = await coursesService.getUserCourses();
+            const foundUserCourse = userCourses.find((uc: UserCourse) =>
+                uc.courseid.id === courseId.value
+            );
+
+            if (foundUserCourse) {
+                userCourse.value = foundUserCourse;
+            }
         } else {
             // User is not following this course, redirect to my-lessons
             error.value = "Vous devez suivre ce cours pour accéder à ses chapitres.";

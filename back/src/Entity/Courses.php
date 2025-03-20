@@ -51,7 +51,7 @@ class Courses
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['course:read', 'course:write', 'user:read'])]
+    #[Groups(['course:read', 'course:write', 'user:read', 'user_course:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -84,7 +84,7 @@ class Courses
 
     #[ORM\OneToMany(mappedBy: 'courseid', targetEntity: UserCourses::class, orphanRemoval: true)]
     #[Groups(['course:read'])]
-    #[MaxDepth(1)]
+    #[MaxDepth(2)]
     private Collection $userCourses;
 
     #[ORM\Column(length: 255, nullable: true)]

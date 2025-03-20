@@ -12,24 +12,22 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class UserCoursesSubscriber implements EventSubscriberInterface
 {
-    private $security;
-
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
+    public function __construct(
+        private Security $security
+    ) {
     }
 
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             KernelEvents::VIEW => [
-                ['setCurrentUserForUserCourses', EventPriorities::PRE_WRITE],
-                ['filterUserCoursesCollection', EventPriorities::PRE_READ]
+                ['setUserForUserCourses', EventPriorities::PRE_VALIDATE],
+                ['includeUserInfoInResponse', EventPriorities::PRE_SERIALIZE],
             ],
         ];
     }
 
-    public function setCurrentUserForUserCourses(ViewEvent $event): void
+    public function setUserForUserCourses(ViewEvent $event): void
     {
         $userCourses = $event->getControllerResult();
         $method = $event->getRequest()->getMethod();
@@ -38,31 +36,41 @@ class UserCoursesSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $user = $this->security->getUser();
         // Set the current user as the owner if not already set
-        if (null === $userCourses->getUserid()) {
-            $userCourses->setUserid($user);
+        if ($userCourses->getUserid() === null) {
+            $user = $this->security->getUser();
+            if ($user) {
+                $userCourses->setUserid($user);
+            }
         }
     }
     
-    public function filterUserCoursesCollection(ViewEvent $event): void
+    public function includeUserInfoInResponse(ViewEvent $event): void
     {
         $result = $event->getControllerResult();
         $method = $event->getRequest()->getMethod();
-        $route = $event->getRequest()->attributes->get('_route');
         
-        // Only apply to GET collection of UserCourses
-        if (
-            $method !== Request::METHOD_GET || 
-            $route !== 'api_user_courses_get_collection'
-        ) {
+        // Only apply to GET requests
+        if ($method !== Request::METHOD_GET) {
             return;
         }
         
-        // We're handling a collection
-        if (is_iterable($result) && !$result instanceof UserCourses) {
-            // The filter will be automatically applied with the ApiFilter annotation
-            // This method could be used for more complex filtering if needed
+        // Make sure user info is included in context
+        $request = $event->getRequest();
+        if (!$request->attributes->has('_api_normalization_context')) {
+            $request->attributes->set('_api_normalization_context', []);
         }
+        
+        $context = $request->attributes->get('_api_normalization_context');
+        if (!isset($context['groups'])) {
+            $context['groups'] = [];
+        }
+        
+        // Add groups that include user info
+        if (!in_array('user_course:read', $context['groups'])) {
+            $context['groups'][] = 'user_course:read';
+        }
+        
+        $request->attributes->set('_api_normalization_context', $context);
     }
 } 

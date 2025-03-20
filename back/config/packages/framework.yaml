@@ -11,8 +11,11 @@ framework:
     serializer:
         enabled: true
         enable_attributes: true
-        circular_reference_handler: 'App\Serializer\CircularReferenceHandler'
-        max_depth_handler: 'App\Serializer\MaxDepthHandler'
+        mapping:
+            paths: ['%kernel.project_dir%/config/serializer/']
+        default_context:
+            enable_max_depth: true
+        circular_reference_handler: App\Serializer\CircularReferenceHandler
 
 when@test:
     framework:

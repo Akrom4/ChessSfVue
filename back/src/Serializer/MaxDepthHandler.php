@@ -5,6 +5,7 @@ namespace App\Serializer;
 use App\Entity\User;
 use App\Entity\UserCourses;
 use App\Entity\Courses;
+use App\Entity\Chapter;
 
 class MaxDepthHandler
 {
@@ -27,6 +28,14 @@ class MaxDepthHandler
         
         if ($object instanceof Courses) {
             // Return only essential data for Courses objects
+            return [
+                'id' => $object->getId(),
+                'title' => $object->getTitle()
+            ];
+        }
+        
+        if ($object instanceof Chapter) {
+            // Return only essential data for Chapter objects
             return [
                 'id' => $object->getId(),
                 'title' => $object->getTitle()
