@@ -39,6 +39,10 @@ security:
     # Access control: public access for the login route; all other /api routes require full authentication.
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/puzzles, roles: PUBLIC_ACCESS }
+        - { path: ^/api/themes, roles: PUBLIC_ACCESS }
+        - { path: ^/api/puzzles/random, roles: PUBLIC_ACCESS }
+        - { path: ^/api/puzzles/by-themes, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
     
 when@test:
