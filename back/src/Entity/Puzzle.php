@@ -6,6 +6,9 @@ use App\Repository\PuzzleRepository;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use App\Controller\GetRandomPuzzleController;
+use App\Controller\GetPuzzlesByThemesController;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -14,7 +17,23 @@ use Doctrine\Common\Collections\ArrayCollection;
 #[ORM\Index(columns: ["rating"], name: "rating_idx")]
 #[ApiResource(
     operations: [
-        new Get()
+        new Get(
+            uriTemplate: '/puzzles/{id}',
+            name: 'puzzle_item',
+            requirements: ['id' => '^[A-Za-z0-9]{5}$']
+        ),
+        new Get(
+            uriTemplate: '/puzzles/random',
+            provider: GetRandomPuzzleController::class,
+            normalizationContext: ['groups' => ['puzzle:read']],
+            name: 'get_random_puzzle'
+        ),
+        new GetCollection(
+            uriTemplate: '/puzzles/by-themes',
+            provider: GetPuzzlesByThemesController::class,
+            normalizationContext: ['groups' => ['puzzle:read']],
+            name: 'get_puzzles_by_themes'
+        ),
     ],
     normalizationContext: ['groups' => ['puzzle:read']],
     denormalizationContext: ['groups' => ['puzzle:write']]

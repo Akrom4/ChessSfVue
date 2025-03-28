@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ThemeRepository::class)]
@@ -15,7 +16,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Index(columns: ['name'], name: 'theme_name_idx')]
 #[ApiResource(
     operations: [
-        new Get()
+        new Get(),
+        new GetCollection()
     ],
     normalizationContext: ['groups' => ['theme:read']],
     denormalizationContext: ['groups' => ['theme:write']]

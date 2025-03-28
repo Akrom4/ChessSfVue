@@ -35,7 +35,8 @@
         "vich/uploader-bundle": "*"
     },
     "require-dev": {
-        "symfony/maker-bundle": "^1.62"
+        "symfony/maker-bundle": "^1.62",
+        "symfony/var-dumper": "7.2.*"
     },
     "config": {
         "allow-plugins": {

@@ -81,13 +81,22 @@ api.interceptors.response.use(
       // Store the current path to redirect back after login
       const currentPath = router.currentRoute.value.fullPath;
       
-      // Don't redirect if already on login page to avoid redirect loops
-      if (router.currentRoute.value.path !== '/login') {
+      // Add a small delay to ensure the auth state is updated
+      setTimeout(() => {
+        // Force navigation to login page even if already on login page
+        // This ensures a fresh login state
         router.push({ 
           name: 'Login', 
           query: { redirect: currentPath }
+        }).catch((err) => {
+          // If navigation fails, try to force a page reload to clear any stale state
+          if (err.name === 'NavigationDuplicated') {
+            window.location.href = '/login';
+          } else {
+            console.debug('Navigation to login page completed');
+          }
         });
-      }
+      }, 100);
     }
     
     return Promise.reject(error);
