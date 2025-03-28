@@ -73,7 +73,6 @@ api.interceptors.response.use(
       console.warn('Authentication error detected, redirecting to login');
       
       // Reset authentication state in memory
-      // Import would create circular dependency, so use window event
       window.dispatchEvent(new CustomEvent('auth-state-change', { 
         detail: { isAuthenticated: false }
       }));
@@ -81,22 +80,23 @@ api.interceptors.response.use(
       // Store the current path to redirect back after login
       const currentPath = router.currentRoute.value.fullPath;
       
-      // Add a small delay to ensure the auth state is updated
-      setTimeout(() => {
-        // Force navigation to login page even if already on login page
-        // This ensures a fresh login state
-        router.push({ 
-          name: 'Login', 
-          query: { redirect: currentPath }
-        }).catch((err) => {
-          // If navigation fails, try to force a page reload to clear any stale state
-          if (err.name === 'NavigationDuplicated') {
-            window.location.href = '/login';
-          } else {
-            console.debug('Navigation to login page completed');
+      // Only redirect if we're not already on the login page
+      if (router.currentRoute.value.name !== 'Login') {
+        // Add a small delay to ensure the auth state has been updated
+        setTimeout(() => {
+          if (router.currentRoute.value.name !== 'Login') {
+            router.push({ 
+              name: 'Login', 
+              query: { redirect: currentPath !== '/login' ? currentPath : undefined }
+            }).catch((err) => {
+              // If navigation error happens, reload the page as a fallback
+              if (err.name === 'NavigationDuplicated') {
+                window.location.href = '/login';
+              }
+            });
           }
-        });
-      }, 100);
+        }, 100);
+      }
     }
     
     return Promise.reject(error);

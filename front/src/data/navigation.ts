@@ -35,8 +35,9 @@ export const navigation: NavigationItem[] = [
     icon: PuzzlePieceIcon,
     current: false,
     children: [
-      { name: 'Puzzle Rush', href: '/chess' },
-      { name: 'Puzzle Storm', href: '/chess' },
+      { name: 'Puzzles', href: '/puzzles' },
+      { name: 'Puzzle Rush', href: '/puzzle-rush' },
+      { name: 'Puzzle Storm', href: '/puzzle-storm' },
     ],
   },
 ]

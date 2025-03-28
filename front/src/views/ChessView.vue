@@ -29,8 +29,10 @@
         </div>
 
         <!-- Use the chessboard component when data is loaded -->
-        <ChessApp v-else :chapterData="chapterData"
-            :key="`chess-${route.params.courseId}-${route.params.chapterId}-${Date.now()}`" />
+        <div v-else class="chess-app-wrapper">
+            <ChessApp :chapterData="chapterData"
+                :key="`chess-${route.params.courseId}-${route.params.chapterId}-${Date.now()}`" />
+        </div>
     </div>
 </template>
 
@@ -139,10 +141,46 @@ watch(() => route.params, (newParams) => {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    /* Changed from center to flex-start */
     align-items: center;
     padding: 1rem;
-    height: 100%;
     width: 100%;
+    min-height: 100%;
+}
+
+.chess-app-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Mobile responsive styling */
+@media (max-width: 768px) {
+    #chess-view {
+        padding: 0.5rem;
+    }
+
+    .chess-app-wrapper {
+        width: 100%;
+        aspect-ratio: 1/1;
+        max-width: 80vmin;
+        margin: 0 auto;
+    }
+
+    :deep(.chess-app-wrapper #chessboard) {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100%;
+    }
+
+    :deep(.chess-app-wrapper #chess-app) {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    :deep(.chess-app-wrapper) {
+        max-width: 95vmin;
+    }
 }
 </style>

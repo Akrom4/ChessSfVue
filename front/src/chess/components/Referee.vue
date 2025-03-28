@@ -18,7 +18,8 @@
     </div>
     <!-- Pass the computed boardPieces -->
     <Chessboard :playMove="playMove" :pieces="boardPieces" :setOrientation="setOrientation"
-      :getOrientation="getOrientation" :teamTurn="teamTurn" />
+      :getOrientation="getOrientation" :teamTurn="teamTurn" :lastMoveSquares="lastMoveSquares" :isPuzzle="isPuzzle"
+      :isPuzzleComplete="isPuzzleComplete" />
   </div>
 </template>
 
@@ -41,13 +42,19 @@ import blackQueen from '../assets/images/chess_bq.svg';
 export default defineComponent({
   name: 'Referee',
   props: {
-    fen: String
+    fen: String,
+    moves: {
+      type: String,
+      default: ''
+    },
+    isPuzzle: {
+      type: Boolean,
+      default: false
+    }
   },
   components: { Chessboard },
   setup(props) {
-    // Declare board as a ref of type Board.
     const board = ref<Board>(initialBoard);
-    // Computed property for pieces.
     const boardPieces = computed(() => {
       return board.value.pieces;
     });
@@ -57,16 +64,67 @@ export default defineComponent({
     const modalBodyRef = ref<HTMLElement | null>(null);
     const orientation = ref('white');
     const teamTurn = ref<'w' | 'b'>(TeamType.W);
+    const lastMoveSquares = ref<Position[]>([]);
+    const currentMoveIndex = ref(0);
+    const moveSequence = ref<string[]>([]);
+    const isPuzzleComplete = computed(() => {
+      return props.isPuzzle && currentMoveIndex.value >= moveSequence.value.length
+    });
+
+    // Parse moves string into array of moves
+    watch(() => props.moves, (newMoves) => {
+      if (newMoves) {
+        moveSequence.value = newMoves.split(' ');
+      }
+    }, { immediate: true });
+
+    // Function to set board orientation based on the puzzle
+    function setPuzzleOrientation() {
+      if (props.isPuzzle && moveSequence.value.length > 0) {
+        const firstMoveTurn = teamTurn.value; // Current turn is who plays first move
+        const playerColor = firstMoveTurn === TeamType.W ? 'black' : 'white'; // Player plays second, so opposite color
+        setOrientation(playerColor);
+        console.log(`Setting puzzle orientation to ${playerColor} (player's color)`);
+      }
+    }
 
     onMounted(() => {
+      if (props.fen) {
+        board.value = board.value.fenReader(props.fen);
+        teamTurn.value = board.value.getTurn() as 'w' | 'b';
+      }
       board.value.validMoves();
+
+      // Set player's color at the bottom for puzzles
+      setPuzzleOrientation();
+
+      // If this is a puzzle and we have moves, play the first move automatically
+      if (props.isPuzzle && moveSequence.value.length > 0) {
+        playNextMove();
+      }
     });
 
     watch(() => props.fen, (newFen) => {
       if (newFen) {
-        readFen(newFen);
+        console.log('Referee received FEN:', newFen);
+        board.value = board.value.fenReader(newFen);
+        teamTurn.value = board.value.getTurn() as 'w' | 'b';
+        board.value.validMoves();
+
+        // Reset move sequence when FEN changes
+        currentMoveIndex.value = 0;
+        lastMoveSquares.value = [];
+
+
+        // Set player's color at the bottom for puzzles
+        setPuzzleOrientation();
+
+        // If this is a puzzle and we have moves, play the first move automatically
+        if (props.isPuzzle && moveSequence.value.length > 0) {
+          playNextMove();
+        }
       }
-    });
+    }, { immediate: true });
 
     function setOrientation(color: string) {
       orientation.value = color;
@@ -78,9 +136,96 @@ export default defineComponent({
       board.value.validMoves();
     }
 
+    // Convert algebraic notation to Position objects
+    function algebraicToPosition(algebraic: string): { from: Position, to: Position } {
+      const from = new Position(
+        algebraic.charCodeAt(0) - 'a'.charCodeAt(0),
+        parseInt(algebraic[1]) - 1
+      );
+      const to = new Position(
+        algebraic.charCodeAt(2) - 'a'.charCodeAt(0),
+        parseInt(algebraic[3]) - 1
+      );
+      return { from, to };
+    }
+
+    // Play the next move in the sequence
+    async function playNextMove() {
+      if (currentMoveIndex.value >= moveSequence.value.length) return;
+
+      const move = moveSequence.value[currentMoveIndex.value];
+      const { from, to } = algebraicToPosition(move);
+
+      // Highlight the squares
+      lastMoveSquares.value = [from, to];
+
+      // Find the piece to move
+      const piece = board.value.pieces.find(p => p.samePosition(from));
+      if (!piece) return;
+
+      // Animate the move
+      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for highlight to be visible
+
+      // Perform the move
+      const validMove = board.value.playMove(to, piece);
+      if (validMove) {
+        board.value = board.value.clone();
+        teamTurn.value = teamTurn.value === TeamType.W ? TeamType.B : TeamType.W;
+        currentMoveIndex.value++;
+
+        // Check if puzzle is complete after CPU move
+        if (currentMoveIndex.value >= moveSequence.value.length) {
+          // Keep the last move square visible for the checkmark
+          console.log('Puzzle completed by CPU move! Showing checkmark on last move.');
+          // No need to clear lastMoveSquares - keep it to show the checkmark
+        } else {
+          // For non-final moves, don't clear the highlights
+          // They will be cleared when the player makes their move
+        }
+      }
+    }
+
     function playMove(playedPiece: Piece, destination: Position, chessboard: HTMLElement) {
+      // If this is a puzzle, validate the move
+      if (props.isPuzzle) {
+        const expectedMove = moveSequence.value[currentMoveIndex.value];
+        if (!expectedMove) return false;
+
+        const { to } = algebraicToPosition(expectedMove);
+        if (!destination.samePosition(to)) {
+          return false;
+        }
+
+        // Move is correct, play it and the next move
+        const validMove = board.value.playMove(destination, playedPiece);
+        if (validMove) {
+          board.value = board.value.clone();
+          teamTurn.value = teamTurn.value === TeamType.W ? TeamType.B : TeamType.W;
+
+          // Now that this move is validated, clear the previous highlights
+          lastMoveSquares.value = [];
+
+          currentMoveIndex.value++;
+
+          // Check if puzzle is complete
+          if (currentMoveIndex.value >= moveSequence.value.length) {
+            // For the completed puzzle, set the last move square to the destination
+            // This ensures the checkmark will appear on the last move
+            lastMoveSquares.value = [destination];
+            console.log('Puzzle completed! Showing checkmark on last move.');
+            return validMove;
+          }
+
+          // Play the next move automatically
+          setTimeout(() => {
+            playNextMove();
+          }, 300);
+        }
+        return validMove;
+      }
+
+      // Regular move handling for non-puzzle mode
       const validMove = board.value.playMove(destination, playedPiece);
-      // Replace board with its clone so that board.value changes.
       board.value = board.value.clone();
 
       const promotionRow = playedPiece.team === TeamType.W ? 7 : 0;
@@ -134,13 +279,6 @@ export default defineComponent({
       }
     }
 
-    function readFen(fen: string) {
-      const newBoardState = board.value.fenReader(fen);
-      newBoardState.validMoves();
-      teamTurn.value = newBoardState.getTurn() as 'w' | 'b';
-      board.value = newBoardState.clone();
-    }
-
     return {
       board,
       boardPieces,
@@ -149,6 +287,8 @@ export default defineComponent({
       modalBodyRef,
       orientation,
       teamTurn,
+      lastMoveSquares,
+      isPuzzleComplete,
       setOrientation,
       getOrientation,
       updatePossibleMoves,
@@ -156,7 +296,6 @@ export default defineComponent({
       promote,
       promoteColor,
       modalPosition,
-      readFen,
       PieceType,
       TeamType,
       whiteQueen,
@@ -166,7 +305,8 @@ export default defineComponent({
       whiteRook,
       blackRook,
       whiteBishop,
-      blackBishop
+      blackBishop,
+      isPuzzle: props.isPuzzle
     };
   }
 });

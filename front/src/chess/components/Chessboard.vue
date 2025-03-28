@@ -2,9 +2,10 @@
   <div ref="chessboardRef" id="chessboard" class="overflow-hidden select-none touch-action-none" @mousemove="movePiece"
     @mousedown="grabPiece" @mouseup="dropPiece" @touchstart="handleTouch($event); grabPiece($event)"
     @touchmove="handleTouch($event); movePiece($event)" @touchend="handleTouch($event); dropPiece($event)"
-    @contextmenu.prevent>
+    @contextmenu.prevent="resetPiece($event)">
     <Square v-for="(square, index) in board" :key="index" :isWhite="square.isWhite" :piece="square.piece"
-      :highlight="square.highlight" :drag="square.drag" />
+      :highlight="square.highlight" :drag="square.drag" :isHighlighted="isSquareHighlighted(square.position)"
+      :isPuzzleComplete="isPuzzleComplete && isLastSquare(square.position)" />
     <div class="chessboard-nav">
       <!-- Navigation buttons or additional content can go here -->
     </div>
@@ -44,12 +45,26 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    lastMoveSquares: {
+      type: Array as PropType<Position[]>,
+      default: () => []
+    },
+    isPuzzle: {
+      type: Boolean,
+      default: false
+    },
+    isPuzzleComplete: {
+      type: Boolean,
+      default: false
+    }
   },
   setup(props) {
+
     const activePiece = ref<HTMLElement | null>(null);
     const grabPosition = ref<Position | null>(null);
     const isDragging = ref(false);
     const chessboardRef = ref<HTMLElement | null>(null);
+
 
     // Helper: get board bounding rectangle
     const getBoardRect = () => {
@@ -153,6 +168,23 @@ export default defineComponent({
       }
     };
 
+    // New function to reset piece position on right-click
+    const resetPiece = (e: MouseEvent | TouchEvent) => {
+      if (activePiece.value) {
+        // Reset the piece styling
+        activePiece.value.style.removeProperty("top");
+        activePiece.value.style.removeProperty("left");
+        activePiece.value.style.removeProperty("position");
+        activePiece.value.style.zIndex = "0";
+
+        // Reset the drag state
+        activePiece.value = null;
+        isDragging.value = false;
+        e.stopPropagation();
+        e.preventDefault(); // Prevent default context menu
+      }
+    };
+
     // Keep renderBoard unchanged from before
     const renderBoard = () => {
       const boardArray = [];
@@ -198,6 +230,7 @@ export default defineComponent({
             piece: image,
             highlight,
             drag,
+            position: new Position(i, j)
           });
           white_square = !white_square;
         }
@@ -207,13 +240,26 @@ export default defineComponent({
 
     const board = computed(() => renderBoard());
 
+    function isSquareHighlighted(position: Position): boolean {
+      return props.lastMoveSquares.some(square => square.samePosition(position));
+    }
+
+    function isLastSquare(position: Position): boolean {
+      if (props.lastMoveSquares.length === 0) return false;
+      const lastSquare = props.lastMoveSquares[props.lastMoveSquares.length - 1];
+      return position.samePosition(lastSquare);
+    }
+
     return {
       chessboardRef,
       movePiece,
       grabPiece,
       dropPiece,
+      resetPiece,
       handleTouch,
       board,
+      isSquareHighlighted,
+      isLastSquare
     };
   },
 });
@@ -236,7 +282,8 @@ export default defineComponent({
   cursor: pointer;
 }
 
-.squareHighlight {
+/* This applies to all squares with the .squareHighlight class */
+:deep(.squareHighlight) {
   position: relative;
   outline: none;
   display: flex;
@@ -244,7 +291,7 @@ export default defineComponent({
   align-items: center;
 }
 
-.squareHighlight::before {
+:deep(.squareHighlight::before) {
   content: "";
   width: 3vmin;
   height: 3vmin;
@@ -252,8 +299,10 @@ export default defineComponent({
   border-radius: 50%;
 }
 
-.squareHighlightOccupied {
+/* This applies to all squares with the .squareHighlightOccupied class */
+:deep(.squareHighlightOccupied) {
   border-radius: 3vmin;
+  /* No additional styling to preserve just the red corner effect from the background */
 }
 
 @media screen and (max-width:768px) {

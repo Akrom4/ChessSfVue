@@ -121,7 +121,6 @@ export default {
 #chess-app {
   display: flex;
   user-select: none;
-  height: 100%;
   width: 100%;
   max-width: 1200px;
 }
@@ -130,11 +129,25 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
+  align-items: center;
 }
 
 @media (max-width: 768px) {
   #chess-app {
     flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .game-container {
+    width: 100%;
+  }
+
+  /* Ensure PgnReader is full width on mobile */
+  :deep(#chess-app > div:not(.game-container)) {
+    width: 100% !important;
+    max-width: none;
+    margin-top: 1rem;
   }
 }
 </style>

@@ -79,27 +79,59 @@ export default defineComponent({
   position: relative;
   top: 0;
   flex-direction: column;
-  padding: 2vmin 2vmin 2vmin 2vmin;
+  padding: 2vmin;
   margin-left: 2vmin;
   font-family: "Roboto";
+  overflow-y: auto;
+  background-color: #fff;
+}
+
+#pgnBoxInner {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.movesContainer {
+  margin-bottom: 1rem;
+}
+
+.moveNumber {
+  color: #666;
+  font-weight: bold;
 }
 
 .moves {
   color: #214a7c;
   font-weight: bold;
-  padding-bottom: 1vmin;
-  font-size: 1.125em;
+  padding: 0.25rem 0.5rem;
+  margin: 0.125rem;
+  cursor: pointer;
+  display: inline-block;
+  border-radius: 0.25rem;
 }
 
-.comments {
-  font-size: 1em;
+.moves:hover {
+  background-color: #f0f0f0;
+}
+
+.comment {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background-color: #f5f5f5;
+  border-left: 0.25rem solid #214a7c;
+  font-size: 0.875rem;
+  line-height: 1.4;
 }
 
 @media (max-width: 768px) {
   #pgnBox {
     width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 50vh;
     margin-left: 0;
     margin-top: 1rem;
+    padding: 1rem;
   }
 }
 </style>
