@@ -101,6 +101,7 @@ export default defineComponent({
   bottom: 0;
   background-color: rgba(76, 175, 80, 0.2);
   pointer-events: none;
+  z-index: 10;
 }
 
 .drag {

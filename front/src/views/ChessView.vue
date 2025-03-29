@@ -6,14 +6,19 @@
                 Mes leçons
             </router-link>
             <span class="mx-2 text-gray-400">/</span>
-            <router-link :to="{
-                name: 'Chapters',
-                params: { id: courseId }
-            }" class="text-gray-500 hover:text-[var(--color-nav-start)]">
-                {{ courseTitle || 'Chapitres' }}
-            </router-link>
-            <span class="mx-2 text-gray-400">/</span>
-            <span class="text-gray-700 font-medium">{{ chapterTitle || 'Chapitre' }}</span>
+            <template v-if="courseId">
+                <router-link :to="{
+                    name: 'Chapters',
+                    params: { id: courseId }
+                }" class="text-gray-500 hover:text-[var(--color-nav-start)]">
+                    {{ courseTitle || 'Chapitres' }}
+                </router-link>
+                <span class="mx-2 text-gray-400">/</span>
+                <span class="text-gray-700 font-medium">{{ chapterTitle || 'Chapitre' }}</span>
+            </template>
+            <template v-else>
+                <span class="text-gray-700 font-medium">Chapitres</span>
+            </template>
         </div>
 
         <!-- Loading state -->
@@ -53,15 +58,21 @@ const courseTitle = ref(null);
 const chapterTitle = ref(null);
 
 // Get the chapter and course IDs from the route
-const courseId = computed(() => parseInt(route.params.courseId));
-const chapterId = computed(() => parseInt(route.params.chapterId));
+const courseId = computed(() => {
+    const id = parseInt(route.params.courseId);
+    return isNaN(id) ? null : id;
+});
+const chapterId = computed(() => {
+    const id = parseInt(route.params.chapterId);
+    return isNaN(id) ? null : id;
+});
 
 // Fetch chapter data
 const fetchChapterData = async () => {
     console.log('Fetching data for course:', courseId.value, 'chapter:', chapterId.value);
 
     if (!courseId.value || !chapterId.value) {
-        error.value = 'Paramètres de chapitre manquants';
+        error.value = 'Paramètres de chapitre manquants ou invalides';
         loading.value = false;
         return;
     }

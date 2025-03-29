@@ -141,9 +141,9 @@ const { getCourseImageUrl } = useAssets();
 // State
 const courseId = computed(() => {
     const id = route.params.id;
-    if (!id) return NaN;
-    const parsedId = Number(id);
-    return isNaN(parsedId) ? NaN : parsedId;
+    if (!id) return null;
+    const parsedId = parseInt(id.toString());
+    return isNaN(parsedId) ? null : parsedId;
 });
 const course = ref<Course | null>(null);
 const chapters = ref<Chapter[]>([]);
@@ -249,4 +249,16 @@ watch(() => route.params.id, (newId, oldId) => {
         }
     }
 });
+
+// Redirect to lessons page if course ID is invalid
+watch(courseId, (newId) => {
+    if (newId === null) {
+        console.error('Invalid course ID, redirecting to my lessons page');
+        error.value = 'ID de cours invalide';
+        isRedirecting.value = true;
+        setTimeout(() => {
+            router.push('/my-lessons');
+        }, 1000);
+    }
+}, { immediate: true });
 </script>

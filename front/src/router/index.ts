@@ -113,6 +113,19 @@ router.beforeEach(async (to, from, next) => {
   console.log('Navigating to:', to.path)
   console.log('Is authenticated:', isAuthenticated.value)
 
+  // Handle missing required params - simple approach
+  if (to.matched.length > 0 && to.matched.some(record => record.path.includes(':') && !record.path.includes('?'))) {
+    const hasEmptyParams = Object.keys(to.params).some(key => 
+      to.params[key] === undefined || to.params[key] === null || to.params[key] === ''
+    );
+    
+    if (hasEmptyParams) {
+      console.warn('Missing required params for route:', to.path);
+      next({ name: 'home' });
+      return;
+    }
+  }
+
   // For login page, allow access regardless of auth status
   if (to.name === 'Login') {
     console.log('Proceeding to login page')

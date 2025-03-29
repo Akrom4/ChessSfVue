@@ -124,8 +124,8 @@
                     elevation="sm" className="h-auto">
                     <!-- Course image (left side) -->
                     <template #image>
-                        <img v-if="userCourse.courseid.image" :src="getCourseImageUrl(userCourse.courseid.image)"
-                            :alt="userCourse.courseid.title" class="w-full h-full object-cover">
+                        <img v-if="userCourse?.courseid?.image" :src="getCourseImageUrl(userCourse.courseid.image)"
+                            :alt="userCourse.courseid?.title || 'Course image'" class="w-full h-full object-cover">
                         <div v-else class="w-full h-full flex items-center justify-center bg-gray-100">
                             <span class="text-gray-500">No image</span>
                         </div>
@@ -137,13 +137,13 @@
                         <div class="flex flex-col items-center">
                             <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                                 <span class="text-xs font-semibold text-blue-700">
-                                    {{ Math.round(userCourse.completionPercentage || 0) }}%
+                                    {{ Math.round(userCourse?.completionPercentage || 0) }}%
                                 </span>
                             </div>
 
                             <!-- Difficulty indicator -->
                             <div class="mt-2 mb-1">
-                                <template v-if="userCourse.courseid.difficulty">
+                                <template v-if="userCourse?.courseid?.difficulty">
                                     <!-- Easy -->
                                     <span v-if="userCourse.courseid.difficulty === 'easy'"
                                         class="w-2.5 h-2.5 rounded-full bg-green-500 block" title="Facile"></span>
@@ -173,11 +173,12 @@
 
                     <!-- Title -->
                     <template #title>
-                        <h2 class="text-base font-semibold text-gray-800">{{ userCourse.courseid.title }}</h2>
+                        <h2 class="text-base font-semibold text-gray-800">{{ userCourse?.courseid?.title ||
+                            'Cours sans titre' }}</h2>
                         <div class="flex items-center text-xs text-gray-500 mt-1">
                             <span class="flex items-center">
                                 <DocumentTextIcon class="h-3 w-3 mr-1" />
-                                {{ getChapterText(userCourse.courseid) }}
+                                {{ getChapterText(userCourse?.courseid) }}
                             </span>
                         </div>
                     </template>
@@ -186,11 +187,11 @@
                     <template #colorside>
                         <span class="text-xs text-gray-500">
                             <span
-                                v-if="userCourse.courseid.colorside && userCourse.courseid.colorside.toString().toLowerCase() === 'w'">Pour
+                                v-if="userCourse?.courseid?.colorside && userCourse.courseid.colorside.toString().toLowerCase() === 'w'">Pour
                                 les
                                 blancs</span>
                             <span
-                                v-else-if="userCourse.courseid.colorside && userCourse.courseid.colorside.toString().toLowerCase() === 'b'">Pour
+                                v-else-if="userCourse?.courseid?.colorside && userCourse.courseid.colorside.toString().toLowerCase() === 'b'">Pour
                                 les
                                 noirs</span>
                             <span v-else>Pour tous</span>
@@ -199,7 +200,7 @@
 
                     <!-- Author -->
                     <template #author>
-                        <span v-if="userCourse.courseid.author" class="text-xs text-gray-500">Par {{
+                        <span v-if="userCourse?.courseid?.author" class="text-xs text-gray-500">Par {{
                             userCourse.courseid.author }}</span>
                         <span v-else class="text-xs text-gray-500">Auteur inconnu</span>
                     </template>
@@ -209,27 +210,34 @@
                         <div class="mb-3">
                             <div class="w-full bg-gray-200 rounded-full h-1.5">
                                 <div class="bg-blue-600 h-1.5 rounded-full"
-                                    :style="{ width: `${Math.round(userCourse.completionPercentage || 0)}%` }"></div>
+                                    :style="{ width: `${Math.round(userCourse?.completionPercentage || 0)}%` }"></div>
                             </div>
                         </div>
-                        <p class="line-clamp-2 mb-2">{{ userCourse.courseid.description ||
+                        <p class="line-clamp-2 mb-2">{{ userCourse?.courseid?.description ||
                             "Aucune description disponible" }}</p>
                     </div>
 
                     <!-- Action buttons -->
                     <div class="mt-4 grid grid-cols-3 gap-1 border-t border-gray-200 pt-4">
-                        <router-link :to="`/my-lessons/${userCourse.courseid.id}/chapters`"
+                        <router-link v-if="userCourse?.courseid?.id"
+                            :to="`/my-lessons/${userCourse.courseid.id}/chapters`"
                             class="flex justify-center items-center gap-1 text-sm py-2 rounded-md text-[var(--color-nav-start)] hover:bg-[var(--color-light-pgn)]">
                             <DocumentTextIcon class="h-4 w-4" />
                             <span class="hidden sm:inline">Chapitres</span>
                         </router-link>
+                        <button v-else
+                            class="flex justify-center items-center gap-1 text-sm py-2 rounded-md text-gray-400 cursor-not-allowed">
+                            <DocumentTextIcon class="h-4 w-4" />
+                            <span class="hidden sm:inline">Chapitres</span>
+                        </button>
                         <button
                             class="flex justify-center items-center gap-1 text-sm py-2 rounded-md text-gray-600 hover:bg-gray-100">
                             <AcademicCapIcon class="h-4 w-4" />
                             <span class="hidden sm:inline">Test</span>
                         </button>
                         <button
-                            class="flex justify-center items-center gap-1 text-sm py-2 rounded-md text-green-600 hover:bg-green-50">
+                            class="flex justify-center items-center gap-1 text-sm py-2 rounded-md text-green-600 hover:bg-green-50"
+                            @click="continueCourse(userCourse)">
                             <PlayIcon class="h-4 w-4" />
                             <span class="hidden sm:inline">Continuer</span>
                         </button>
@@ -244,8 +252,8 @@
                     <div class="flex flex-col md:flex-row">
                         <!-- Image -->
                         <div class="md:w-48 h-40 md:h-auto flex-shrink-0">
-                            <img v-if="userCourse.courseid.image" :src="getCourseImageUrl(userCourse.courseid.image)"
-                                :alt="userCourse.courseid.title" class="w-full h-full object-cover">
+                            <img v-if="userCourse?.courseid?.image" :src="getCourseImageUrl(userCourse.courseid.image)"
+                                :alt="userCourse?.courseid?.title || 'Course image'" class="w-full h-full object-cover">
                             <div v-else class="w-full h-full flex items-center justify-center bg-gray-100">
                                 <span class="text-gray-500">No image</span>
                             </div>
@@ -255,11 +263,12 @@
                         <div class="p-4 flex-grow">
                             <div class="flex items-start justify-between">
                                 <div>
-                                    <h2 class="text-lg font-semibold text-gray-800">{{ userCourse.courseid.title }}</h2>
+                                    <h2 class="text-lg font-semibold text-gray-800">{{ userCourse?.courseid?.title ||
+                                        'Cours sans titre' }}</h2>
                                     <div class="flex items-center text-xs text-gray-500 mt-1">
                                         <span class="flex items-center">
                                             <DocumentTextIcon class="h-3 w-3 mr-1" />
-                                            {{ getChapterText(userCourse.courseid) }}
+                                            {{ getChapterText(userCourse?.courseid) }}
                                         </span>
                                     </div>
                                 </div>
@@ -268,13 +277,13 @@
                                         <div
                                             class="flex flex-col items-center justify-center bg-blue-100 rounded-full w-10 h-10 md:w-12 md:h-12">
                                             <span class="text-xs md:text-sm font-bold text-blue-700">
-                                                {{ Math.round(userCourse.completionPercentage || 0) }}%
+                                                {{ Math.round(userCourse?.completionPercentage || 0) }}%
                                             </span>
                                         </div>
 
                                         <!-- Difficulty indicator -->
                                         <div class="mt-2 mb-1">
-                                            <template v-if="userCourse.courseid.difficulty">
+                                            <template v-if="userCourse?.courseid?.difficulty">
                                                 <!-- Easy -->
                                                 <span v-if="userCourse.courseid.difficulty === 'easy'"
                                                     class="w-2.5 h-2.5 rounded-full bg-green-500 block"
@@ -309,31 +318,38 @@
                             </div>
 
                             <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                                {{ userCourse.courseid.description || 'Aucune description disponible' }}
+                                {{ userCourse?.courseid?.description || 'Aucune description disponible' }}
                             </p>
 
                             <div class="mb-4">
                                 <div class="w-full bg-gray-200 rounded-full h-2">
                                     <div class="bg-blue-600 h-2 rounded-full"
-                                        :style="{ width: `${Math.round(userCourse.completionPercentage || 0)}%` }">
+                                        :style="{ width: `${Math.round(userCourse?.completionPercentage || 0)}%` }">
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Action buttons -->
                             <div class="flex space-x-2">
-                                <router-link :to="`/my-lessons/${userCourse.courseid.id}/chapters`"
+                                <router-link v-if="userCourse?.courseid?.id"
+                                    :to="`/my-lessons/${userCourse.courseid.id}/chapters`"
                                     class="flex justify-center items-center gap-1 px-4 py-2 text-sm rounded-md border border-[var(--color-nav-start)] text-[var(--color-nav-start)] hover:bg-[var(--color-light-pgn)]">
                                     <DocumentTextIcon class="h-4 w-4" />
                                     <span>Chapitres</span>
                                 </router-link>
+                                <button v-else
+                                    class="flex justify-center items-center gap-1 px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-400 cursor-not-allowed">
+                                    <DocumentTextIcon class="h-4 w-4" />
+                                    <span>Chapitres</span>
+                                </button>
                                 <button
                                     class="flex justify-center items-center gap-1 px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50">
                                     <AcademicCapIcon class="h-4 w-4" />
                                     <span>Test</span>
                                 </button>
                                 <button
-                                    class="flex justify-center items-center gap-1 px-4 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700">
+                                    class="flex justify-center items-center gap-1 px-4 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700"
+                                    @click="continueCourse(userCourse)">
                                     <PlayIcon class="h-4 w-4" />
                                     <span>Continuer</span>
                                 </button>
@@ -370,7 +386,8 @@ const viewMode = ref<'grid' | 'list'>('grid');
 const searchTerm = ref('');
 
 // Helper function to get chapter text with pluralization
-const getChapterText = (course: Course): string => {
+const getChapterText = (course: Course | undefined): string => {
+    if (!course) return "0 chapitre";
     const count = course.chapters ? course.chapters.length : 0;
     return `${count} chapitre${count !== 1 ? 's' : ''}`;
 };
@@ -407,18 +424,36 @@ const removeCourse = async (userCourse: UserCourse) => {
     }
 };
 
-// Fetch user courses
+// Fetch user's enrolled courses
 const fetchUserCourses = async () => {
-    loading.value = true;
-    error.value = null;
-
     try {
-        const userCoursesData = await coursesService.getUserCourses();
-        userCourses.value = userCoursesData;
-        console.log('Fetched user courses:', userCoursesData);
-    } catch (err: any) {
-        error.value = err.message || 'Une erreur est survenue lors du chargement de vos cours.';
-        console.error('Error fetching user courses:', err);
+        loading.value = true;
+        error.value = null;
+        console.log('Fetching user courses...');
+        const courses = await coursesService.getUserCourses();
+
+        // Handle no courses found case
+        if (!courses || courses.length === 0) {
+            console.log('Fetched user courses: []');
+            userCourses.value = [];
+            return;
+        }
+
+        // Store the original data - this is what API returns
+        userCourses.value = courses;
+        console.log('Fetched user courses:', userCourses.value);
+    } catch (error: any) {
+        console.error('Error fetching user courses:', error);
+
+        // Check for 401 errors specifically and don't set error message
+        // since the interceptor will handle redirection
+        if (error.response && error.response.status === 401) {
+            userCourses.value = [];
+            return; // Let the API interceptor handle auth errors
+        }
+
+        error.value = 'Impossible de charger vos cours. Veuillez réessayer plus tard.';
+        userCourses.value = [];
     } finally {
         loading.value = false;
     }
@@ -432,7 +467,9 @@ const filteredCourses = computed(() => {
 
     const term = searchTerm.value.toLowerCase();
     return userCourses.value.filter(userCourse => {
-        const course = userCourse.courseid;
+        const course = userCourse?.courseid;
+        if (!course) return false;
+
         return (course.title && course.title.toLowerCase().includes(term)) ||
             (course.description && course.description.toLowerCase().includes(term)) ||
             (course.author && course.author.toLowerCase().includes(term));
@@ -446,4 +483,16 @@ onActivated(() => {
 })
 
 onMounted(fetchUserCourses);
+
+// Helper function to safely navigate to the first chapter of a course
+const continueCourse = (userCourse: any) => {
+    if (!userCourse?.courseid?.id) {
+        console.warn('Cannot continue course: missing course ID');
+        return;
+    }
+
+    // Get the chapters (ideally this would use an API call or stored data)
+    // For now, just redirect to the chapters page
+    router.push(`/my-lessons/${userCourse.courseid.id}/chapters`);
+};
 </script>

@@ -75,8 +75,55 @@ export default defineComponent({
     watch(() => props.moves, (newMoves) => {
       if (newMoves) {
         moveSequence.value = newMoves.split(' ');
+        updateLastMoveHighlight(newMoves);
+        console.log(`Referee received moves: "${newMoves}"`);
+      } else {
+        // Clear highlights when no moves are provided
+        lastMoveSquares.value = [];
       }
     }, { immediate: true });
+
+    // Function to update the last move highlight based on algebraic notation
+    function updateLastMoveHighlight(algebraicMove: string) {
+      // Support for destination square only (like 'e4')
+      if (algebraicMove.length === 2 &&
+        algebraicMove[0] >= 'a' && algebraicMove[0] <= 'h' &&
+        algebraicMove[1] >= '1' && algebraicMove[1] <= '8') {
+        // Convert to position
+        const file = algebraicMove.charCodeAt(0) - 'a'.charCodeAt(0);
+        const rank = parseInt(algebraicMove[1]) - 1;
+        const position = new Position(file, rank);
+        lastMoveSquares.value = [position];
+        console.log(`Highlighting destination square: ${algebraicMove}`);
+        return;
+      }
+
+      // Full move notation (like 'e2e4')
+      if (algebraicMove.length >= 4 &&
+        algebraicMove[0] >= 'a' && algebraicMove[0] <= 'h' &&
+        algebraicMove[1] >= '1' && algebraicMove[1] <= '8' &&
+        algebraicMove[2] >= 'a' && algebraicMove[2] <= 'h' &&
+        algebraicMove[3] >= '1' && algebraicMove[3] <= '8') {
+        // Convert to positions
+        const fromFile = algebraicMove.charCodeAt(0) - 'a'.charCodeAt(0);
+        const fromRank = parseInt(algebraicMove[1]) - 1;
+        const toFile = algebraicMove.charCodeAt(2) - 'a'.charCodeAt(0);
+        const toRank = parseInt(algebraicMove[3]) - 1;
+
+        const fromPosition = new Position(fromFile, fromRank);
+        const toPosition = new Position(toFile, toRank);
+
+        lastMoveSquares.value = [fromPosition, toPosition];
+        console.log(`Highlighting move from ${algebraicMove.substring(0, 2)} to ${algebraicMove.substring(2, 4)}`);
+        return;
+      }
+
+      // Clear highlights if no valid move format
+      if (algebraicMove) {
+        console.log(`Received invalid move format for highlighting: ${algebraicMove}`);
+      }
+      lastMoveSquares.value = [];
+    }
 
     // Function to set board orientation based on the puzzle
     function setPuzzleOrientation() {

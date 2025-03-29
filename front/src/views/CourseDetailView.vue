@@ -208,10 +208,11 @@ const { getCourseImageUrl } = useAssets()
 
 const courseId = computed(() => {
     const id = route.params.id;
-    if (!id) return NaN;
+    // Only attempt to parse if id is defined
+    if (!id) return null;
     const parsedId = parseInt(id as string);
-    return isNaN(parsedId) ? NaN : parsedId;
-})
+    return isNaN(parsedId) ? null : parsedId;
+});
 const course = ref<Course | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -297,17 +298,25 @@ watch(() => route.params.id, (newId, oldId) => {
             fetchCourseData();
         } else {
             console.error('Invalid course ID in route params:', newId);
-            error.value = 'ID de cours invalide';
+            // Reset course data without error if we're navigating away from the component
+            course.value = null;
+            error.value = route.name === 'CourseDetail' ? 'ID de cours invalide' : null;
+            loading.value = false;
         }
     }
-});
+}, { immediate: true });
 
 // Fetch course data
 const fetchCourseData = async () => {
     // Skip fetching if we don't have a valid course ID
-    if (!courseId.value || isNaN(courseId.value)) {
+    if (!courseId.value) {
         console.error('Invalid course ID, cannot fetch course data:', route.params.id);
-        error.value = 'ID de cours invalide';
+        // Only set error if we're still on the course detail page
+        if (route.name === 'CourseDetail') {
+            error.value = 'ID de cours invalide';
+        } else {
+            error.value = null;
+        }
         loading.value = false;
         return;
     }

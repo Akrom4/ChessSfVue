@@ -14,6 +14,7 @@ interface User {
 // Shared state across all instances of the composable
 const isAuthenticated = ref(false)
 const user = ref<User | null>(null)
+const authCheckInProgress = ref(false) // Flag to prevent multiple simultaneous auth checks
 
 // Custom event for auth state changes
 const AUTH_STATE_CHANGE_EVENT = 'auth-state-change'
@@ -133,6 +134,26 @@ export function useAuth() {
   }
 
   const checkAuth = async () => {
+    // If a check is already in progress, wait for it to complete
+    if (authCheckInProgress.value) {
+      console.log('Auth check already in progress, waiting...');
+      // Wait for 300ms before checking again
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // If we're now authenticated, return success
+      if (isAuthenticated.value) {
+        return true;
+      }
+      
+      // If someone else's check is still in progress, return current auth state
+      if (authCheckInProgress.value) {
+        return isAuthenticated.value;
+      }
+    }
+    
+    // Mark that we're now checking
+    authCheckInProgress.value = true;
+    
     try {
       console.log('Performing auth check via GET /me')
       const { data } = await api.get('/me')
@@ -141,12 +162,21 @@ export function useAuth() {
       dispatchAuthStateChangeEvent(true)
       console.log('Auth check successful, user:', user.value)
       return true
-    } catch (error) {
+    } catch (error: any) {
       console.error('checkAuth error:', error)
-      isAuthenticated.value = false
-      user.value = null
-      dispatchAuthStateChangeEvent(false)
+      
+      // Only update state for real auth failures, not for network errors 
+      // which might be temporary
+      if (error.response && error.response.status === 401) {
+        isAuthenticated.value = false
+        user.value = null
+        dispatchAuthStateChangeEvent(false)
+      }
+      
       return false
+    } finally {
+      // Mark that we're done checking
+      authCheckInProgress.value = false;
     }
   }
 

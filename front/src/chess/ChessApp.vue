@@ -2,13 +2,13 @@
 <template>
   <div id="chess-app">
     <div class="game-container">
-      <Referee :fen="fen" />
+      <Referee :fen="fen" :moves="lastMoveAlg" />
       <GameNavigator :gameState="gameState" :currentGameStateIndex="currentGameStateIndex"
         :setCurrentGameStateIndex="setCurrentGameStateIndex" :setFen="setFen" :INITIAL_FEN="INITIAL_FEN" />
     </div>
 
     <!-- PgnReader with chapter data from props -->
-    <PgnReader :pgnData="chapterData || fallbackChapter" @moveClick="handleMoveClick" :gameState="gameState"
+    <PgnReader :pgnData="chapterData || fallbackChapter" :onMoveClick="handleMoveClick" :gameState="gameState"
       :currentGameStateIndex="currentGameStateIndex" />
   </div>
 </template>
@@ -22,8 +22,7 @@ import GameNavigator from './components/GameNavigator.vue';
 export default {
   components: {
     Referee,
-    PgnReader,
-    GameNavigator
+    PgnReader
   },
   props: {
     chapterData: {
@@ -62,12 +61,14 @@ export default {
     // Initialize with the initial position
     const fen = ref(INITIAL_FEN.value);
     const currentGameStateIndex = ref(-1);
+    const lastMoveAlg = ref(''); // Store the last move algebraic notation for highlighting
 
     // Force reset on component initialization
     onMounted(() => {
       console.log('ChessApp mounted, resetting state with:', INITIAL_FEN.value);
       currentGameStateIndex.value = -1;
       fen.value = INITIAL_FEN.value;
+      lastMoveAlg.value = ''; // Clear any highlighting
     });
 
     const setCurrentGameStateIndex = (index) => {
@@ -84,6 +85,7 @@ export default {
       } else {
         // Reset to initial position if no move is selected
         fen.value = INITIAL_FEN.value;
+        lastMoveAlg.value = ''; // Clear highlighting when going back to initial position
       }
     });
 
@@ -93,11 +95,16 @@ export default {
       // Force reset
       currentGameStateIndex.value = -1;
       fen.value = newData?.FEN || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+      lastMoveAlg.value = ''; // Clear highlighting when changing chapters
     }, { deep: true, immediate: true });
 
-    const handleMoveClick = (move) => {
-      fen.value = move.position;
-      const index = gameState.value.findIndex(m => m.position === move.position);
+    const handleMoveClick = (move, position, moveAlg) => {
+      fen.value = position;
+      // Set the last move algebraic notation for highlighting
+      lastMoveAlg.value = moveAlg || '';
+      console.log(`Move clicked: ${move.move}, position: ${position}, algebraic for highlighting: ${lastMoveAlg.value}`);
+
+      const index = gameState.value.findIndex(m => m.position === position);
       if (index !== -1) {
         currentGameStateIndex.value = index;
       }
@@ -109,6 +116,7 @@ export default {
       gameState,
       fen,
       currentGameStateIndex,
+      lastMoveAlg,
       setCurrentGameStateIndex,
       setFen,
       handleMoveClick
