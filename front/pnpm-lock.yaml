@@ -32,6 +32,9 @@ importers:
       react-icons:
         specifier: ^5.5.0
         version: 5.5.0(react@18.2.0)
+      stockfish:
+        specifier: ^16.0.0
+        version: 16.0.0
       tailwindcss:
         specifier: ^4.0.8
         version: 4.0.8
@@ -1752,6 +1755,10 @@ packages:
   speakingurl@14.0.1:
     resolution: {integrity: sha512-1POYv7uv2gXoyGFpBCmpDVSNV74IfsWlDW216UPjbWufNf+bSU6GdbDsxdcxtfwb4xlI3yxzOTKClUosxARYrQ==}
     engines: {node: '>=0.10.0'}
+
+  stockfish@16.0.0:
+    resolution: {integrity: sha512-uu4AqsE2x0tD+SsYzZy4UtqeH4U9zDi1V8loDFDbMwCtvumGXF9j81Pg1ZmIkUgZhwQqPxQAv8IN5oy6hZa7Bw==}
+    hasBin: true
 
   strip-final-newline@4.0.0:
     resolution: {integrity: sha512-aulFJcD6YK8V1G7iRB5tigAP4TsHBZZrOV8pjV++zdUwmeV8uzbY7yn6h9MswN62adStNZFuCIx4haBnRuMDaw==}
@@ -3574,6 +3581,8 @@ snapshots:
   source-map-js@1.2.1: {}
 
   speakingurl@14.0.1: {}
+
+  stockfish@16.0.0: {}
 
   strip-final-newline@4.0.0: {}
 

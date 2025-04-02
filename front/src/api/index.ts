@@ -68,38 +68,29 @@ api.interceptors.response.use(
       console.error('API Response error:', errorInfo);
     }
     
-    // For 401 Unauthorized errors, redirect to login
+    // For 401 Unauthorized errors, handle auth state
     if (error.response?.status === 401) {
-      console.warn('Authentication error detected, will redirect to login');
+      console.warn('Authentication error (401) detected');
       
-      // Reset authentication state in memory
+      // Record this auth error timestamp to help prevent redirect loops
+      localStorage.setItem('lastAuthError', String(new Date().getTime()));
+      
+      // Reset authentication state
       window.dispatchEvent(new CustomEvent('auth-state-change', { 
         detail: { isAuthenticated: false }
       }));
       
-      // Store the current path to redirect back after login
-      const currentPath = router.currentRoute.value.fullPath;
-      const isLoginPage = currentPath === '/login' || router.currentRoute.value.name === 'Login';
-      const isAuthRelatedRequest = error.config?.url?.includes('/api/me') ||
-                                   error.config?.url?.includes('/api/login_check');
-      
-      // Only redirect if we're not already on the login page and not in a redirect loop
-      if (!isLoginPage && !isAuthRelatedRequest) {
-        // Add a small delay to ensure the auth state has been updated
-        setTimeout(() => {
-          // Double-check we're still not on login page (could have changed during delay)
-          if (router.currentRoute.value.name !== 'Login') {
-            router.push({ 
-              name: 'Login', 
-              query: { redirect: currentPath !== '/login' ? currentPath : undefined }
-            }).catch((err) => {
-              // If navigation error happens, log it but don't force a reload
-              // to prevent potential redirect loops
-              console.error('Navigation error:', err);
-            });
-          }
-        }, 100);
-      }
+      // Force navigation to login page
+      // Use setTimeout to avoid immediate redirect issues
+      setTimeout(() => {
+        // Check if we're not already on the login page
+        if (router.currentRoute.value.name !== 'Login') {
+          router.push({ 
+            name: 'Login',
+            query: { redirect: router.currentRoute.value.fullPath }
+          });
+        }
+      }, 100);
     }
     
     return Promise.reject(error);

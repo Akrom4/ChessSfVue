@@ -126,14 +126,25 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // For login page, allow access regardless of auth status
+  // Allow access to login page regardless of authentication status
   if (to.name === 'Login') {
     console.log('Proceeding to login page')
     // If they're already authenticated, redirect to home instead
+    // But allow access if there was a recent auth error (to prevent loops)
     if (isAuthenticated.value) {
+      const recentAuth401Error = localStorage.getItem('lastAuthError');
+      const currentTime = new Date().getTime();
+      
+      // If we had a 401 error within the last 2 seconds, don't redirect
+      if (recentAuth401Error && currentTime - parseInt(recentAuth401Error) < 2000) {
+        console.log('Recent auth error detected, allowing login page access');
+        next();
+        return;
+      }
+      
       console.log('User already authenticated, redirecting to home')
       next({ name: 'home' })
-      return
+      return;
     }
     next()
     return
@@ -149,8 +160,11 @@ router.beforeEach(async (to, from, next) => {
       
       if (!authResult) {
         console.log('Auth check failed, redirecting to login')
-        // If redirect from an auth error, clear any existing redirect param
-        // to prevent potential redirect loops
+        
+        // Record the auth failure
+        localStorage.setItem('lastAuthError', String(new Date().getTime()));
+        
+        // Store the current path for redirect after login
         const shouldRedirect = !to.path.startsWith('/login')
         const query = shouldRedirect ? { redirect: to.fullPath } : {}
         
@@ -166,6 +180,10 @@ router.beforeEach(async (to, from, next) => {
       }
     } catch (error) {
       console.log('Auth check error, redirecting to login')
+      
+      // Record the auth failure
+      localStorage.setItem('lastAuthError', String(new Date().getTime()));
+      
       next({ 
         name: 'Login', 
         query: { redirect: to.fullPath },
@@ -185,9 +203,8 @@ router.beforeEach(async (to, from, next) => {
   
   // Special check for routes that require following a course
   if (to.meta.requiresFollowing) {
-    // For our purposes, we'll let the component handle this check and redirect
-    // since we need to fetch user courses data from the API
     console.log('Route requires following a course, component will verify')
+    // The component will handle this verification after mounting
   }
   
   // Check if the authenticated user has access to this route

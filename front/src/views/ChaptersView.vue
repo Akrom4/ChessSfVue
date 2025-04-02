@@ -252,7 +252,8 @@ watch(() => route.params.id, (newId, oldId) => {
 
 // Redirect to lessons page if course ID is invalid
 watch(courseId, (newId) => {
-    if (newId === null) {
+    // Only redirect if this component is active (has route name 'Chapters')
+    if (newId === null && route.name === 'Chapters') {
         console.error('Invalid course ID, redirecting to my lessons page');
         error.value = 'ID de cours invalide';
         isRedirecting.value = true;

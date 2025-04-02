@@ -122,16 +122,7 @@ const fetchChapterData = async () => {
     } catch (err) {
         console.error('Error fetching chapter data:', err);
 
-        // Check for authentication errors (401 Unauthorized)
-        if (err.response && err.response.status === 401) {
-            error.value = "Votre session a expiré. Veuillez vous reconnecter.";
-            // Redirect to login after a short delay
-            setTimeout(() => {
-                router.push('/login');
-            }, 2000);
-            return;
-        }
-
+        // Set generic error message (auth errors will be handled by interceptor and router guard)
         error.value = err.message || 'Une erreur est survenue lors du chargement du chapitre.';
     } finally {
         loading.value = false;

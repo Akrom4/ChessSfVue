@@ -1,19 +1,75 @@
 <template>
-  <div ref="chessboardRef" id="chessboard" class="overflow-hidden select-none touch-action-none" @mousemove="movePiece"
-    @mousedown="grabPiece" @mouseup="dropPiece" @touchstart="handleTouch($event); grabPiece($event)"
-    @touchmove="handleTouch($event); movePiece($event)" @touchend="handleTouch($event); dropPiece($event)"
-    @contextmenu.prevent="resetPiece($event)">
-    <Square v-for="(square, index) in board" :key="index" :isWhite="square.isWhite" :piece="square.piece"
-      :highlight="square.highlight" :drag="square.drag" :isHighlighted="isSquareHighlighted(square.position)"
-      :isPuzzleComplete="isPuzzleComplete && isLastSquare(square.position)" />
-    <div class="chessboard-nav">
-      <!-- Navigation buttons or additional content can go here -->
+  <div class="chessboard-container">
+    <!-- Controls in their own div, positioned next to the chessboard -->
+    <div class="chessboard-controls">
+      <button @click="flipBoard" class="control-button" title="Retourner l'échiquier">
+        <!-- Circular arrows icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </button>
+
+      <button @click="toggleSettingsMenu" class="control-button" title="Paramètres">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+
+      <!-- Settings dropdown menu -->
+      <div v-if="showSettingsMenu" class="settings-menu">
+        <div class="settings-header">
+          <div class="settings-title">Paramètres</div>
+          <!-- X mark close button -->
+          <button @click="toggleSettingsMenu" class="settings-close" title="Fermer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="settings-options">
+          <label class="settings-option">
+            <span>Aperçu des coups</span>
+            <div class="toggle-switch">
+              <input type="checkbox" v-model="showMovePreview" class="sr-only" id="toggle-move-preview" />
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb" :class="showMovePreview ? 'toggle-on' : 'toggle-off'"></div>
+            </div>
+          </label>
+          <label class="settings-option">
+            <span>Coordonnées</span>
+            <div class="toggle-switch">
+              <input type="checkbox" v-model="showCoordinates" class="sr-only" id="toggle-coordinates" />
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb" :class="showCoordinates ? 'toggle-on' : 'toggle-off'"></div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div ref="chessboardRef" id="chessboard" class="overflow-hidden select-none touch-action-none"
+      @mousemove="movePiece" @mousedown="grabPiece" @mouseup="dropPiece"
+      @touchstart="handleTouch($event); grabPiece($event)" @touchmove="handleTouch($event); movePiece($event)"
+      @touchend="handleTouch($event); dropPiece($event)" @contextmenu.prevent="resetPiece($event)">
+      <Square v-for="(square, index) in board" :key="index" :isWhite="square.isWhite" :piece="square.piece"
+        :highlight="square.highlight && showMovePreview" :drag="square.drag"
+        :isHighlighted="isSquareHighlighted(square.position)"
+        :isPuzzleComplete="isPuzzleComplete && isLastSquare(square.position)" />
+      <div class="chessboard-nav">
+        <!-- Navigation buttons or additional content can go here -->
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
 import Square from "./Square.vue";
 import { row, column } from "../Constants";
 import { Position } from "../models";
@@ -59,12 +115,51 @@ export default defineComponent({
     }
   },
   setup(props) {
-
     const activePiece = ref<HTMLElement | null>(null);
     const grabPosition = ref<Position | null>(null);
     const isDragging = ref(false);
     const chessboardRef = ref<HTMLElement | null>(null);
 
+    // Settings state
+    const showSettingsMenu = ref(false);
+    const showMovePreview = ref(true);
+    const showCoordinates = ref(false);
+
+    // Toggle settings menu
+    const toggleSettingsMenu = () => {
+      showSettingsMenu.value = !showSettingsMenu.value;
+    };
+
+    // Handle clicks outside of the settings menu
+    const handleClickOutside = (event: MouseEvent) => {
+      const menuEl = document.querySelector('.settings-menu');
+      const buttonEl = document.querySelector('.control-button[title="Paramètres"]');
+
+      if (showSettingsMenu.value &&
+        menuEl &&
+        buttonEl &&
+        !menuEl.contains(event.target as Node) &&
+        !buttonEl.contains(event.target as Node)) {
+        showSettingsMenu.value = false;
+      }
+    };
+
+    // Add and remove event listener for click outside
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside);
+    });
+
+    onUnmounted(() => {
+      document.removeEventListener('click', handleClickOutside);
+    });
+
+    // Flip the board
+    const flipBoard = () => {
+      const newOrientation = props.getOrientation() === "white" ? "black" : "white";
+      props.setOrientation(newOrientation);
+      // Close the menu after flipping the board
+      showSettingsMenu.value = false;
+    };
 
     // Helper: get board bounding rectangle
     const getBoardRect = () => {
@@ -259,13 +354,147 @@ export default defineComponent({
       handleTouch,
       board,
       isSquareHighlighted,
-      isLastSquare
+      isLastSquare,
+      // Settings state
+      showSettingsMenu,
+      toggleSettingsMenu,
+      showMovePreview,
+      showCoordinates,
+      flipBoard
     };
   },
 });
 </script>
 
 <style scoped>
+.chessboard-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.chessboard-controls {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-button {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.control-button:hover {
+  background-color: #f8fafc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.settings-menu {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  width: 220px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.settings-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1a202c;
+}
+
+.settings-close {
+  cursor: pointer;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.settings-close:hover {
+  background-color: #f7fafc;
+  color: #4a5568;
+}
+
+.settings-options {
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.settings-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #4a5568;
+  cursor: pointer;
+}
+
+.settings-option:hover {
+  background-color: #f7fafc;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+}
+
+.toggle-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e2e8f0;
+  border-radius: 20px;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-off {
+  left: 2px;
+}
+
+.toggle-on {
+  transform: translateX(18px);
+  background-color: #4299e1;
+}
+
 #chessboard {
   height: 80vmin;
   width: 80vmin;

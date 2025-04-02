@@ -445,13 +445,8 @@ const fetchUserCourses = async () => {
     } catch (error: any) {
         console.error('Error fetching user courses:', error);
 
-        // Check for 401 errors specifically and don't set error message
-        // since the interceptor will handle redirection
-        if (error.response && error.response.status === 401) {
-            userCourses.value = [];
-            return; // Let the API interceptor handle auth errors
-        }
-
+        // Set generic error message for all non-auth errors
+        // Auth errors will be handled by the interceptor and router guard
         error.value = 'Impossible de charger vos cours. Veuillez réessayer plus tard.';
         userCourses.value = [];
     } finally {

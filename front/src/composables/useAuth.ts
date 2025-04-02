@@ -127,6 +127,9 @@ export function useAuth() {
       user.value = null
       dispatchAuthStateChangeEvent(false)
       
+      // Clear any auth-related local storage
+      localStorage.removeItem('lastAuthError');
+      
       // Redirect to login page
       router.push('/login')
       console.log('Redirected to login page')
@@ -168,8 +171,13 @@ export function useAuth() {
       // Only update state for real auth failures, not for network errors 
       // which might be temporary
       if (error.response && error.response.status === 401) {
+        console.log('Auth check failed with 401 Unauthorized');
         isAuthenticated.value = false
         user.value = null
+        
+        // Record this auth error timestamp
+        localStorage.setItem('lastAuthError', String(new Date().getTime()));
+        
         dispatchAuthStateChangeEvent(false)
       }
       

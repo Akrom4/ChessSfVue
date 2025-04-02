@@ -3,13 +3,16 @@
   <div id="chess-app">
     <div class="game-container">
       <Referee :fen="fen" :moves="lastMoveAlg" />
-      <GameNavigator :gameState="gameState" :currentGameStateIndex="currentGameStateIndex"
-        :setCurrentGameStateIndex="setCurrentGameStateIndex" :setFen="setFen" :INITIAL_FEN="INITIAL_FEN" />
     </div>
 
-    <!-- PgnReader with chapter data from props -->
-    <PgnReader :pgnData="chapterData || fallbackChapter" :onMoveClick="handleMoveClick" :gameState="gameState"
-      :currentGameStateIndex="currentGameStateIndex" />
+    <div class="analysis-and-pgn">
+      <!-- Stockfish Analysis -->
+      <StockfishAnalysis :fen="fen" />
+
+      <!-- PgnReader with chapter data from props -->
+      <PgnReader :pgnData="chapterData || fallbackChapter" :onMoveClick="handleMoveClick" :gameState="gameState"
+        :currentGameStateIndex="currentGameStateIndex" />
+    </div>
   </div>
 </template>
 
@@ -17,12 +20,13 @@
 import { ref, reactive, watch, computed, onMounted } from 'vue';
 import Referee from './components/Referee.vue';
 import PgnReader from './components/PgnReader.vue';
-import GameNavigator from './components/GameNavigator.vue';
+import StockfishAnalysis from './components/StockfishAnalysis.vue';
 
 export default {
   components: {
     Referee,
-    PgnReader
+    PgnReader,
+    StockfishAnalysis
   },
   props: {
     chapterData: {
@@ -140,6 +144,13 @@ export default {
   align-items: center;
 }
 
+.analysis-and-pgn {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 400px;
+}
+
 @media (max-width: 768px) {
   #chess-app {
     flex-direction: column;
@@ -151,11 +162,9 @@ export default {
     width: 100%;
   }
 
-  /* Ensure PgnReader is full width on mobile */
-  :deep(#chess-app > div:not(.game-container)) {
-    width: 100% !important;
+  .analysis-and-pgn {
+    width: 100%;
     max-width: none;
-    margin-top: 1rem;
   }
 }
 </style>

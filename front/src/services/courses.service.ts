@@ -50,7 +50,7 @@ class CoursesService {
       return response.data.member || []
     } catch (error) {
       console.error('Error fetching user courses:', error)
-      return []
+      throw error
     }
   }
 
